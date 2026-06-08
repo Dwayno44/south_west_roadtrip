@@ -1,0 +1,2989 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SW WA Road Trip Planner</title>
+  <style>
+    :root {
+      --ink: #1b2428;
+      --muted: #5d696f;
+      --line: #cfd8d8;
+      --paper: #fbfbf7;
+      --panel: #ffffff;
+      --accent: #165f74;
+      --accent-2: #b95839;
+      --shadow: 0 16px 48px rgba(24, 36, 40, 0.14);
+      --gracetown: #83b3aa;
+      --margaret-river: #91a96f;
+      --hamelin-bay: #dfb65b;
+      --peaceful-bay: #72a8c3;
+      --denmark: #5f9f8b;
+      --albany: #9b8bc3;
+      --bremer-bay: #d38a6e;
+      --hopetoun: #72a373;
+      --esperance: #5d9dcc;
+      --cape-le-grand: #d9cf75;
+      --hyden: #bd8b5e;
+      --perth: #303c42;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: #e8eeeb;
+      color: var(--ink);
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      line-height: 1.45;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button,
+    .button {
+      align-items: center;
+      background: var(--accent);
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      color: #fff;
+      cursor: pointer;
+      display: inline-flex;
+      font-weight: 700;
+      gap: 0.45rem;
+      justify-content: center;
+      min-height: 2.5rem;
+      padding: 0.55rem 0.85rem;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    button.secondary,
+    .button.secondary {
+      background: #fff;
+      color: var(--accent);
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible,
+    [contenteditable="true"]:focus-visible {
+      outline: 3px solid rgba(22, 95, 116, 0.28);
+      outline-offset: 2px;
+    }
+
+    .app-header {
+      background: rgba(251, 251, 247, 0.96);
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .header-inner {
+      align-items: center;
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 1fr auto;
+      margin: 0 auto;
+      max-width: 1440px;
+      padding: 0.9rem 1.25rem;
+    }
+
+    .brand {
+      min-width: 0;
+    }
+
+    h1,
+    h2,
+    h3 {
+      letter-spacing: 0;
+      line-height: 1.12;
+      margin: 0;
+    }
+
+    h1 {
+      font-size: clamp(1.35rem, 2vw, 2rem);
+      font-weight: 800;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.94rem;
+      margin-top: 0.25rem;
+    }
+
+    .toolbar {
+      align-items: end;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      justify-content: flex-end;
+    }
+
+    .field {
+      display: grid;
+      gap: 0.25rem;
+      min-width: 0;
+    }
+
+    .field span {
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    select,
+    input,
+    textarea {
+      background: #fff;
+      border: 1px solid #b9c5c6;
+      border-radius: 6px;
+      box-sizing: border-box;
+      color: var(--ink);
+      min-height: 2.5rem;
+      min-width: 0;
+      padding: 0.48rem 0.62rem;
+      width: 100%;
+    }
+
+    main {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.46), rgba(255, 255, 255, 0)),
+        var(--paper);
+      min-height: 100vh;
+    }
+
+    .page {
+      display: grid;
+      gap: 1rem;
+      margin: 0 auto;
+      max-width: 1440px;
+      padding: 1rem 1.25rem 2rem;
+    }
+
+    .overview {
+      align-items: stretch;
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: minmax(0, 1fr) 360px;
+    }
+
+    .summary-band,
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .summary-band {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 1fr auto;
+      overflow: hidden;
+      padding: 1rem;
+    }
+
+    .summary-title {
+      display: grid;
+      gap: 0.35rem;
+    }
+
+    .summary-title h2 {
+      font-size: clamp(1.35rem, 2vw, 2rem);
+    }
+
+    .summary-meta {
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 0;
+    }
+
+    .pill {
+      background: #eef4f2;
+      border: 1px solid #d6e2df;
+      border-radius: 999px;
+      color: #223237;
+      display: inline-flex;
+      font-size: 0.84rem;
+      font-weight: 700;
+      line-height: 1;
+      padding: 0.45rem 0.65rem;
+      white-space: nowrap;
+    }
+
+    .metric-grid {
+      display: grid;
+      gap: 0.5rem;
+      grid-template-columns: repeat(3, minmax(6.5rem, 1fr));
+      min-width: 22rem;
+    }
+
+    .metric {
+      border-left: 4px solid var(--accent-2);
+      padding: 0.25rem 0.75rem;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 1.2rem;
+      line-height: 1.1;
+    }
+
+    .metric span {
+      color: var(--muted);
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      margin-top: 0.2rem;
+      text-transform: uppercase;
+    }
+
+    .map-panel {
+      overflow: hidden;
+    }
+
+    .panel-header {
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      gap: 0.75rem;
+      justify-content: space-between;
+      padding: 0.8rem 1rem;
+    }
+
+    .panel-header h2,
+    .panel-header h3 {
+      font-size: 1rem;
+      font-weight: 800;
+    }
+
+    .panel-body {
+      padding: 1rem;
+    }
+
+    .map-wrap {
+      background: linear-gradient(180deg, #e7f1f2 0%, #f8f6ee 72%);
+      border: 1px solid #bfcccb;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .real-map-wrap {
+      background: #eef4f2;
+      border: 1px solid #bfcccb;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .real-map-frame {
+      aspect-ratio: 16 / 9;
+      border: 0;
+      display: block;
+      min-height: 360px;
+      width: 100%;
+    }
+
+    .google-route-box {
+      background: #fbfaf5;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin-top: 1rem;
+      padding: 0.85rem;
+    }
+
+    .google-route-heading {
+      align-items: baseline;
+      display: flex;
+      gap: 0.65rem;
+      justify-content: space-between;
+      margin-bottom: 0.65rem;
+    }
+
+    .google-route-heading h3 {
+      font-size: 0.92rem;
+      font-weight: 850;
+    }
+
+    .map-actions {
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      margin: 0.75rem 0 0.85rem;
+    }
+
+    .map-help {
+      color: var(--muted);
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+
+    .schematic-label {
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      margin: 0 0 0.4rem;
+      text-transform: uppercase;
+    }
+
+    .schematic-key {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 0 0 0.55rem;
+    }
+
+    .schematic-key span {
+      align-items: center;
+      display: inline-flex;
+      font-size: 0.78rem;
+      font-weight: 800;
+      gap: 0.35rem;
+    }
+
+    .key-pill {
+      border-radius: 999px;
+      display: inline-flex;
+      height: 1rem;
+      width: 2.1rem;
+    }
+
+    .key-stay {
+      background: #172226;
+    }
+
+    .key-drive {
+      background: #fff3dd;
+      border: 1px dashed #b95839;
+    }
+
+    .route-map {
+      display: block;
+      height: auto;
+      width: 100%;
+    }
+
+    .map-caption {
+      color: var(--muted);
+      font-size: 0.82rem;
+      margin: 0.65rem 0 0;
+    }
+
+    .route-list {
+      display: grid;
+      gap: 0.35rem;
+      margin-top: 0.8rem;
+    }
+
+    .route-row {
+      align-items: center;
+      display: grid;
+      gap: 0.45rem;
+      grid-template-columns: 1.6rem 1fr auto;
+    }
+
+    .route-index {
+      align-items: center;
+      background: var(--ink);
+      border-radius: 999px;
+      color: #fff;
+      display: inline-flex;
+      font-size: 0.75rem;
+      font-weight: 800;
+      height: 1.45rem;
+      justify-content: center;
+      width: 1.45rem;
+    }
+
+    .route-name {
+      font-size: 0.9rem;
+      font-weight: 700;
+      min-width: 0;
+    }
+
+    .route-nights {
+      color: var(--muted);
+      font-size: 0.84rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-top: 0.75rem;
+    }
+
+    .legend-item {
+      align-items: center;
+      border: 1px solid #d6dddc;
+      border-radius: 999px;
+      display: inline-flex;
+      font-size: 0.78rem;
+      font-weight: 700;
+      gap: 0.35rem;
+      padding: 0.25rem 0.45rem;
+    }
+
+    .swatch {
+      border: 1px solid rgba(0, 0, 0, 0.22);
+      border-radius: 999px;
+      display: inline-block;
+      height: 0.78rem;
+      width: 0.78rem;
+    }
+
+    .grid-two {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+    }
+
+    .calendar-panel {
+      overflow: hidden;
+    }
+
+    .months {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .month {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .month h3 {
+      background: #f1f5f2;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.95rem;
+      padding: 0.6rem 0.75rem;
+    }
+
+    .weekdays,
+    .days {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+    }
+
+    .weekdays span {
+      background: #fbfcfa;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 0.38rem;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .day {
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+      min-height: 5.4rem;
+      padding: 0.4rem;
+      position: relative;
+    }
+
+    .day:nth-child(7n) {
+      border-right: 0;
+    }
+
+    .day.empty {
+      background: #f4f5f1;
+    }
+
+    .day-num {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 800;
+      margin-bottom: 0.32rem;
+    }
+
+    .day-event {
+      border: 1px solid rgba(0, 0, 0, 0.18);
+      border-radius: 5px;
+      color: #172226;
+      display: grid;
+      gap: 0.1rem;
+      line-height: 1.15;
+      padding: 0.28rem 0.32rem;
+    }
+
+    .day-event strong {
+      font-size: 0.76rem;
+      overflow-wrap: anywhere;
+    }
+
+    .day-event span {
+      font-size: 0.68rem;
+      font-weight: 700;
+      opacity: 0.78;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      border-collapse: collapse;
+      table-layout: fixed;
+      width: 100%;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      overflow-wrap: anywhere;
+      padding: 0.58rem;
+      text-align: left;
+      vertical-align: top;
+      white-space: normal;
+    }
+
+    th {
+      background: #eef4f2;
+      color: #233238;
+      font-size: 0.75rem;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    td {
+      background: #fff;
+      font-size: 0.9rem;
+    }
+
+    .stop-cell {
+      align-items: center;
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .stop-dot {
+      border: 1px solid rgba(0, 0, 0, 0.22);
+      border-radius: 999px;
+      flex: 0 0 auto;
+      height: 0.85rem;
+      width: 0.85rem;
+    }
+
+    .date-cell {
+      display: grid;
+      gap: 0.08rem;
+    }
+
+    .date-cell strong {
+      font-size: 0.92rem;
+    }
+
+    .date-cell span {
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+
+    .nights-cell {
+      font-size: 1rem;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .write-lines {
+      display: grid;
+      gap: 0.5rem;
+      min-height: 2.2rem;
+    }
+
+    .write-line {
+      border-bottom: 1px solid #8fa0a1;
+      height: 0.95rem;
+    }
+
+    .notes-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .accom-grid {
+      display: grid;
+      gap: 0.8rem;
+    }
+
+    .accom-row {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      display: grid;
+      gap: 0.75rem;
+      grid-template-columns: minmax(10rem, 0.35fr) minmax(0, 1fr);
+      padding: 0.75rem;
+    }
+
+    .accom-stop {
+      display: grid;
+      gap: 0.25rem;
+    }
+
+    .accom-stop strong {
+      font-size: 1rem;
+    }
+
+    .accom-stop span {
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .accom-options {
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    .accom-option {
+      background: #fbfcfa;
+      border: 1px solid #d8e1de;
+      border-radius: 7px;
+      display: grid;
+      gap: 0.45rem;
+      padding: 0.6rem;
+    }
+
+    .accom-option-head {
+      align-items: start;
+      display: flex;
+      gap: 0.6rem;
+      justify-content: space-between;
+    }
+
+    .accom-option h3 {
+      font-size: 0.95rem;
+      margin: 0;
+    }
+
+    .accom-option p {
+      color: var(--muted);
+      font-size: 0.84rem;
+      margin: 0;
+    }
+
+    .accom-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+
+    .text-link {
+      border: 1px solid #b9c5c6;
+      border-radius: 999px;
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 0.25rem 0.5rem;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .price-note {
+      background: #eef4f2;
+      border-radius: 999px;
+      color: #24373d;
+      font-size: 0.75rem;
+      font-weight: 900;
+      padding: 0.25rem 0.45rem;
+      white-space: nowrap;
+    }
+
+    .option-notes {
+      margin: 0;
+      padding-left: 1.1rem;
+    }
+
+    .option-notes li {
+      margin: 0.35rem 0;
+    }
+
+    .note-pad {
+      background:
+        repeating-linear-gradient(#fff 0, #fff 2.15rem, #d8e1de 2.2rem),
+        #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      min-height: 12rem;
+      padding: 0.72rem;
+    }
+
+    .calculator {
+      display: grid;
+      gap: 0.8rem;
+    }
+
+    .calc-fields {
+      display: grid;
+      gap: 0.65rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .calc-output {
+      border-top: 1px solid var(--line);
+      display: grid;
+      gap: 0.55rem;
+      padding-top: 0.8rem;
+    }
+
+    .calc-row {
+      display: flex;
+      gap: 1rem;
+      justify-content: space-between;
+    }
+
+    .calc-row span {
+      color: var(--muted);
+    }
+
+    .calc-row strong {
+      text-align: right;
+    }
+
+    .status-ok {
+      background: #edf6ef;
+      border: 1px solid #bdd9c4;
+      border-radius: 8px;
+      color: #23482e;
+      font-size: 0.88rem;
+      font-weight: 700;
+      margin-top: 0.85rem;
+      padding: 0.65rem 0.75rem;
+    }
+
+    .status-warn {
+      background: #fff5e6;
+      border: 1px solid #e2c58d;
+      color: #593e14;
+    }
+
+    .svg-label {
+      fill: #172226;
+      font-size: 15px;
+      font-weight: 800;
+      paint-order: stroke;
+      stroke: rgba(255, 255, 255, 0.88);
+      stroke-linejoin: round;
+      stroke-width: 5px;
+    }
+
+    .svg-small {
+      fill: #334046;
+      font-size: 12px;
+      font-weight: 800;
+      paint-order: stroke;
+      stroke: rgba(255, 255, 255, 0.9);
+      stroke-linejoin: round;
+      stroke-width: 4px;
+    }
+
+    .coast-land {
+      fill: #f4f0dd;
+      opacity: 0.96;
+    }
+
+    .coastline-halo {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.92);
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 9;
+    }
+
+    .coastline {
+      fill: none;
+      stroke: #8baaae;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 4;
+    }
+
+    .coast-feature {
+      fill: none;
+      stroke: #d3b879;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 6;
+      opacity: 0.55;
+    }
+
+    .road-guide {
+      fill: none;
+      stroke: rgba(125, 117, 91, 0.34);
+      stroke-dasharray: 4 8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 4;
+    }
+
+    .route-line {
+      fill: none;
+      stroke: #174f5d;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 5;
+    }
+
+    .route-halo {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.88);
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 11;
+    }
+
+    .time-badge {
+      fill: #fff3dd;
+      stroke: #b95839;
+      stroke-dasharray: 3 3;
+      stroke-width: 1.5;
+    }
+
+    .time-text {
+      fill: #7a341f;
+      font-size: 11px;
+      font-weight: 900;
+      text-anchor: middle;
+      dominant-baseline: middle;
+    }
+
+    .time-route-text {
+      fill: #7a341f;
+      font-size: 8px;
+      font-weight: 850;
+      text-anchor: middle;
+      dominant-baseline: middle;
+    }
+
+    .destination-leader {
+      fill: none;
+      stroke: #55666a;
+      stroke-dasharray: 3 3;
+      stroke-linecap: round;
+      stroke-width: 1.2;
+    }
+
+    .destination-label {
+      fill: #fff;
+      stroke: #172226;
+      stroke-width: 1.2;
+    }
+
+    .destination-strip {
+      stroke: none;
+    }
+
+    .destination-name {
+      fill: #172226;
+      font-size: 12px;
+      font-weight: 900;
+      dominant-baseline: middle;
+    }
+
+    .destination-nights {
+      fill: #34454b;
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .destination-dot {
+      fill: #172226;
+      stroke: #fff;
+      stroke-width: 1.2;
+    }
+
+    [data-color="Gracetown"] { background: var(--gracetown); }
+    [data-color="Margaret River"] { background: var(--margaret-river); }
+    [data-color="Hamelin Bay"] { background: var(--hamelin-bay); }
+    [data-color="Peaceful Bay"] { background: var(--peaceful-bay); }
+    [data-color="Denmark"] { background: var(--denmark); }
+    [data-color="Albany"] { background: var(--albany); }
+    [data-color="Bremer Bay"] { background: var(--bremer-bay); }
+    [data-color="Hopetoun"] { background: var(--hopetoun); }
+    [data-color="Esperance"] { background: var(--esperance); }
+    [data-color="Cape Le Grand"] { background: var(--cape-le-grand); }
+    [data-color="Hyden"] { background: var(--hyden); }
+
+    @media (max-width: 1180px) {
+      .overview,
+      .grid-two,
+      .months,
+      .notes-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .metric-grid {
+        min-width: 0;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .app-header {
+        position: static;
+      }
+
+      .header-inner,
+      .summary-band {
+        grid-template-columns: 1fr;
+      }
+
+      .header-inner,
+      .page {
+        padding-left: 0.7rem;
+        padding-right: 0.7rem;
+      }
+
+      .header-inner {
+        align-items: stretch;
+        gap: 0.75rem;
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+      }
+
+      h1 {
+        font-size: 1.35rem;
+      }
+
+      .subtitle {
+        font-size: 0.82rem;
+      }
+
+      .toolbar {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        justify-content: stretch;
+      }
+
+      .toolbar .field {
+        grid-column: 1 / -1;
+      }
+
+      .toolbar button,
+      .toolbar .button {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+        width: 100%;
+      }
+
+      .metric-grid,
+      .calc-fields {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-band,
+      .panel-body {
+        padding: 0.75rem;
+      }
+
+      .panel-header {
+        align-items: flex-start;
+        padding: 0.75rem;
+      }
+
+      .map-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .route-map {
+        min-width: 760px;
+      }
+
+      .real-map-frame {
+        min-height: 260px;
+      }
+
+      .google-route-heading,
+      .map-actions,
+      .accom-option-head {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .map-actions .button,
+      .accom-actions .text-link {
+        justify-content: center;
+        width: 100%;
+      }
+
+      .route-row {
+        grid-template-columns: 1.45rem minmax(0, 1fr) auto;
+      }
+
+      .route-name,
+      .route-nights {
+        font-size: 0.82rem;
+      }
+
+      .day {
+        min-height: 4.8rem;
+        padding: 0.28rem;
+      }
+
+      .day-event strong {
+        font-size: 0.68rem;
+      }
+
+      table {
+        min-width: 760px;
+      }
+
+      .accom-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .page {
+        gap: 0.75rem;
+        padding-bottom: 1.25rem;
+      }
+
+      .panel-header {
+        gap: 0.5rem;
+      }
+
+      .pill {
+        font-size: 0.76rem;
+        padding: 0.4rem 0.5rem;
+      }
+
+      .schematic-key {
+        display: grid;
+      }
+
+      .months {
+        gap: 0.7rem;
+      }
+
+      .weekdays span {
+        font-size: 0.58rem;
+        padding: 0.25rem 0.1rem;
+      }
+
+      .day {
+        min-height: 4.15rem;
+        padding: 0.2rem;
+      }
+
+      .day-num {
+        font-size: 0.68rem;
+        margin-bottom: 0.22rem;
+      }
+
+      .day-event {
+        padding: 0.18rem;
+      }
+
+      .day-event strong {
+        font-size: 0.6rem;
+      }
+
+      .day-event span {
+        font-size: 0.56rem;
+      }
+
+      .calc-row {
+        gap: 0.6rem;
+      }
+
+      .calc-row span,
+      .calc-row strong {
+        font-size: 0.86rem;
+      }
+    }
+
+    @media print {
+      @page {
+        margin: 8mm;
+        size: A4 landscape;
+      }
+
+      html,
+      body,
+      main {
+        background: #fff;
+      }
+
+      .app-header {
+        position: static;
+      }
+
+      .toolbar button,
+      .toolbar .button,
+      .field:has(select) {
+        display: none;
+      }
+
+      .header-inner,
+      .page {
+        max-width: none;
+        padding: 0;
+      }
+
+      .page {
+        gap: 0.55rem;
+      }
+
+      .summary-band,
+      .panel {
+        box-shadow: none;
+        break-inside: avoid;
+      }
+
+      .summary-band,
+      .overview,
+      .grid-two,
+      .accom-row,
+      .notes-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .metric-grid {
+        grid-template-columns: repeat(3, 1fr);
+        min-width: 0;
+      }
+
+      .panel-body {
+        padding: 0.6rem;
+      }
+
+      .months {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .day {
+        min-height: 3.85rem;
+        padding: 0.25rem;
+      }
+
+      .day-event {
+        padding: 0.2rem;
+      }
+
+      .day-event strong {
+        font-size: 0.62rem;
+      }
+
+      .day-event span {
+        font-size: 0.57rem;
+      }
+
+      table {
+        font-size: 8.5pt;
+      }
+
+      th,
+      td {
+        padding: 0.32rem;
+      }
+
+      .note-pad {
+        min-height: 6rem;
+      }
+
+      .google-route-box,
+      .real-map-wrap,
+      .map-actions {
+        display: none;
+      }
+
+      * {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand">
+        <h1>South West WA Road Trip Planner</h1>
+        <div class="subtitle">Perth to Margaret River, Denmark, Albany, Bremer Bay, Esperance, Hyden, and home.</div>
+      </div>
+      <div class="toolbar" aria-label="Planner controls">
+        <label class="field" for="optionSelect">
+          <span>Itinerary</span>
+          <select id="optionSelect"></select>
+        </label>
+        <button id="printButton" type="button" title="Print or save as PDF">Print / PDF</button>
+        <button id="icsButton" type="button" class="secondary" title="Download iCal for selected itinerary">Download iCal</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="page">
+      <section class="summary-band" aria-labelledby="optionTitle">
+        <div class="summary-title">
+          <h2 id="optionTitle"></h2>
+          <p class="summary-meta" id="optionMeta"></p>
+        </div>
+        <div class="metric-grid" id="metricGrid"></div>
+      </section>
+
+      <section class="overview">
+        <article class="panel map-panel" aria-labelledby="mapTitle">
+          <div class="panel-header">
+            <h2 id="mapTitle">Route Map</h2>
+            <span class="pill" id="mapDistancePill"></span>
+          </div>
+          <div class="panel-body">
+            <div class="schematic-label">Printable schematic</div>
+            <div class="schematic-key" aria-label="Printable schematic key">
+              <span><i class="key-pill key-stay" aria-hidden="true"></i>Destination label: name + nights</span>
+              <span><i class="key-pill key-drive" aria-hidden="true"></i>Route leg + duration</span>
+            </div>
+            <div class="map-wrap">
+              <svg id="routeMap" class="route-map" viewBox="0 0 1000 620" role="img" aria-labelledby="mapSvgTitle mapSvgDesc">
+                <title id="mapSvgTitle">South West WA itinerary map</title>
+                <desc id="mapSvgDesc">Schematic route map with destinations and nights for the selected itinerary.</desc>
+                <rect width="1000" height="620" fill="#e9f3f2"></rect>
+                <g id="baseMapLayer"></g>
+                <text x="76" y="44" class="svg-small">Indian Ocean</text>
+                <text x="360" y="586" class="svg-small">Southern Ocean</text>
+                <g id="routeLayer"></g>
+                <g id="markerLayer"></g>
+              </svg>
+            </div>
+            <p class="map-caption" id="mapCaption"></p>
+            <div class="route-list" id="routeList"></div>
+            <div class="google-route-box" aria-labelledby="googleMapTitle">
+              <div class="google-route-heading">
+                <h3 id="googleMapTitle">Google route map</h3>
+                <span class="map-help">Driving waypoints</span>
+              </div>
+              <div class="real-map-wrap">
+                <iframe
+                  id="googleMapFrame"
+                  class="real-map-frame"
+                  title="Google Maps route for selected road trip option"
+                  loading="lazy"
+                  referrerpolicy="no-referrer-when-downgrade"></iframe>
+              </div>
+              <div class="map-actions">
+                <a id="googleMapLink" class="button" href="#" target="_blank" rel="noopener">Open Full Route in Google Maps</a>
+                <span class="map-help">Uses Google-resolved town or place names as driving waypoints.</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <aside class="panel" aria-labelledby="calcTitle">
+          <div class="panel-header">
+            <h2 id="calcTitle">Trip Cost</h2>
+            <span class="pill">Editable</span>
+          </div>
+          <div class="panel-body calculator">
+            <div class="calc-fields">
+              <label class="field">
+                <span>Towing L/100</span>
+                <input id="towingConsumptionInput" type="number" min="1" step="0.1" value="16">
+              </label>
+              <label class="field">
+                <span>Local L/100</span>
+                <input id="localConsumptionInput" type="number" min="1" step="0.1" value="9">
+              </label>
+              <label class="field">
+                <span>Fuel $/L</span>
+                <input id="priceInput" type="number" min="0" step="0.01" value="2.10">
+              </label>
+              <label class="field">
+                <span>Local km/day</span>
+                <input id="localKmInput" type="number" min="0" step="1" value="60">
+              </label>
+              <label class="field">
+                <span>Trip days</span>
+                <input id="tripDaysInput" type="number" min="1" step="1">
+              </label>
+              <label class="field">
+                <span>Accom/park $/night</span>
+                <input id="accomNightInput" type="number" min="0" step="1" value="65">
+              </label>
+              <label class="field">
+                <span>Park fees $/day</span>
+                <input id="parkDayInput" type="number" min="0" step="1" value="0">
+              </label>
+              <label class="field">
+                <span>Park fee days</span>
+                <input id="parkFeeDaysInput" type="number" min="0" step="1">
+              </label>
+            </div>
+            <div class="calc-output">
+              <div class="calc-row"><span>Base towing loop</span><strong id="baseKmOut"></strong></div>
+              <div class="calc-row"><span>Local driving</span><strong id="localKmOut"></strong></div>
+              <div class="calc-row"><span>Towing fuel</span><strong id="towingLitresOut"></strong></div>
+              <div class="calc-row"><span>Local fuel</span><strong id="localLitresOut"></strong></div>
+              <div class="calc-row"><span>Fuel cost</span><strong id="fuelCostOut"></strong></div>
+              <div class="calc-row"><span>Accom/park nights</span><strong id="accomCostOut"></strong></div>
+              <div class="calc-row"><span>Daily park fees</span><strong id="parkCostOut"></strong></div>
+              <div class="calc-row"><span>Estimated trip total</span><strong id="totalCostOut"></strong></div>
+            </div>
+            <div id="returnStatus" class="status-ok"></div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="grid-two">
+        <article class="panel calendar-panel" aria-labelledby="calendarTitle">
+          <div class="panel-header">
+            <h2 id="calendarTitle">Calendar View</h2>
+            <span class="pill">Dec 2026 / Jan 2027</span>
+          </div>
+          <div class="panel-body">
+            <div class="months" id="calendarMonths"></div>
+            <div class="legend" id="legend"></div>
+          </div>
+        </article>
+
+        <article class="panel" aria-labelledby="notesTitle">
+          <div class="panel-header">
+            <h2 id="notesTitle">Review Notes</h2>
+            <span class="pill" id="notesPill"></span>
+          </div>
+          <div class="panel-body notes-grid">
+            <div>
+              <h3 style="font-size:0.95rem;margin-bottom:0.5rem;">Option notes</h3>
+              <ul class="option-notes" id="optionNotes"></ul>
+            </div>
+            <div>
+              <h3 style="font-size:0.95rem;margin-bottom:0.5rem;">Booking notes</h3>
+              <div class="note-pad" contenteditable="true" aria-label="Booking notes"></div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel" aria-labelledby="accomTitle">
+        <div class="panel-header">
+          <h2 id="accomTitle">Suggested Accommodation</h2>
+          <span class="pill" id="accomPill"></span>
+        </div>
+        <div class="panel-body">
+          <p class="map-caption" style="margin-top:0;margin-bottom:0.8rem;">Suggested options are caravan/pop-top friendly where possible. Pricing is indicative only where published; use the direct and date-search links to confirm exact availability before booking.</p>
+          <div class="accom-grid" id="accomGrid"></div>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="tableTitle">
+        <div class="panel-header">
+          <h2 id="tableTitle">Stop Summary</h2>
+          <span class="pill" id="tablePill"></span>
+        </div>
+        <div class="panel-body table-wrap">
+          <table>
+            <colgroup>
+              <col style="width: 22%;">
+              <col style="width: 15%;">
+              <col style="width: 15%;">
+              <col style="width: 8%;">
+              <col style="width: 18%;">
+              <col style="width: 22%;">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Stop</th>
+                <th>Arrive</th>
+                <th>Depart</th>
+                <th>Nights</th>
+                <th>Accommodation choice</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody id="stopTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const SCHOOL_START = "2027-02-01";
+    const REQUIRED_RETURN = "2027-01-25";
+    const BASE_LOOP_KM = 2060;
+    const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+    const LOCATIONS = {
+      "Perth": { lat: -31.9523, lon: 115.8613, color: "#303c42", dx: -112, dy: -26 },
+      "Gracetown": { lat: -33.8640, lon: 114.9870, color: "#83b3aa", dx: -112, dy: -70, mx: -30, my: -20 },
+      "Margaret River": { lat: -33.9537, lon: 115.0738, color: "#91a96f", dx: -118, dy: 18, mx: 28, my: 0 },
+      "Hamelin Bay": { lat: -34.2245, lon: 115.0326, color: "#dfb65b", dx: -116, dy: 28, mx: -22, my: 30 },
+      "Peaceful Bay": { lat: -35.0506, lon: 116.9269, color: "#72a8c3", dx: -78, dy: 58 },
+      "Denmark": { lat: -34.9607, lon: 117.3532, color: "#5f9f8b", dx: 0, dy: 62 },
+      "Albany": { lat: -35.0275, lon: 117.8840, color: "#9b8bc3", dx: 92, dy: 58 },
+      "Bremer Bay": { lat: -34.3938, lon: 119.3764, color: "#d38a6e", dx: 104, dy: 42 },
+      "Hopetoun": { lat: -33.9500, lon: 120.1260, color: "#72a373", dx: 112, dy: 42 },
+      "Esperance": { lat: -33.8608, lon: 121.8896, color: "#5d9dcc", dx: -128, dy: 46, mx: -20, my: -12 },
+      "Cape Le Grand": { lat: -33.9904, lon: 122.2204, color: "#d9cf75", dx: 122, dy: 60, mx: 28, my: 18 },
+      "Hyden": { lat: -32.4492, lon: 118.8657, color: "#bd8b5e", dx: 116, dy: -30 }
+    };
+
+    const MAP_PLACES = {
+      "Perth": "Perth WA, Australia",
+      "Gracetown": "Gracetown WA, Australia",
+      "Margaret River": "Margaret River WA, Australia",
+      "Hamelin Bay": "Hamelin Bay WA, Australia",
+      "Peaceful Bay": "Peaceful Bay WA, Australia",
+      "Denmark": "Denmark WA, Australia",
+      "Albany": "Albany WA, Australia",
+      "Bremer Bay": "Bremer Bay WA, Australia",
+      "Hopetoun": "Hopetoun WA, Australia",
+      "Esperance": "Esperance WA, Australia",
+      "Cape Le Grand": "Cape Le Grand National Park WA, Australia",
+      "Hyden": "Hyden WA, Australia"
+    };
+
+    const COASTLINE = [
+      { lat: -31.36, lon: 115.43 },
+      { lat: -31.58, lon: 115.64 },
+      { lat: -31.82, lon: 115.74 },
+      { lat: -32.05, lon: 115.74 },
+      { lat: -32.31, lon: 115.70 },
+      { lat: -32.53, lon: 115.72 },
+      { lat: -32.78, lon: 115.68 },
+      { lat: -33.03, lon: 115.63 },
+      { lat: -33.28, lon: 115.64 },
+      { lat: -33.48, lon: 115.55 },
+      { lat: -33.60, lon: 115.38 },
+      { lat: -33.54, lon: 115.02 },
+      { lat: -33.68, lon: 114.99 },
+      { lat: -33.86, lon: 114.99 },
+      { lat: -34.05, lon: 114.99 },
+      { lat: -34.23, lon: 115.03 },
+      { lat: -34.37, lon: 115.14 },
+      { lat: -34.53, lon: 115.72 },
+      { lat: -34.78, lon: 116.18 },
+      { lat: -34.98, lon: 116.73 },
+      { lat: -35.05, lon: 116.93 },
+      { lat: -35.02, lon: 117.32 },
+      { lat: -35.03, lon: 117.88 },
+      { lat: -34.92, lon: 118.22 },
+      { lat: -34.73, lon: 118.73 },
+      { lat: -34.50, lon: 119.08 },
+      { lat: -34.39, lon: 119.38 },
+      { lat: -34.24, lon: 119.73 },
+      { lat: -33.95, lon: 120.13 },
+      { lat: -33.91, lon: 120.63 },
+      { lat: -33.86, lon: 121.15 },
+      { lat: -33.86, lon: 121.89 },
+      { lat: -33.99, lon: 122.22 },
+      { lat: -33.86, lon: 122.48 }
+    ];
+
+    const COAST_FEATURES = [
+      [
+        { lat: -33.53, lon: 115.06 },
+        { lat: -33.58, lon: 115.18 },
+        { lat: -33.60, lon: 115.38 },
+        { lat: -33.48, lon: 115.55 },
+        { lat: -33.34, lon: 115.64 }
+      ],
+      [
+        { lat: -34.94, lon: 117.58 },
+        { lat: -35.02, lon: 117.76 },
+        { lat: -35.03, lon: 117.88 },
+        { lat: -34.96, lon: 118.03 }
+      ],
+      [
+        { lat: -33.90, lon: 121.72 },
+        { lat: -33.86, lon: 121.89 },
+        { lat: -33.93, lon: 122.05 },
+        { lat: -33.99, lon: 122.22 }
+      ]
+    ];
+
+    const VIA_POINTS = {
+      "Mandurah": { lat: -32.5269, lon: 115.7217 },
+      "Bunbury": { lat: -33.3271, lon: 115.6414 },
+      "Busselton": { lat: -33.6555, lon: 115.3500 },
+      "Dunsborough": { lat: -33.6140, lon: 115.1040 },
+      "Cowaramup": { lat: -33.8518, lon: 115.1034 },
+      "Witchcliffe": { lat: -34.0269, lon: 115.1014 },
+      "Karridale": { lat: -34.2039, lon: 115.1030 },
+      "Augusta": { lat: -34.3150, lon: 115.1590 },
+      "Nannup": { lat: -33.9784, lon: 115.7642 },
+      "Manjimup": { lat: -34.2410, lon: 116.1460 },
+      "Walpole": { lat: -34.9770, lon: 116.7330 },
+      "Denmark": { lat: -34.9607, lon: 117.3532 },
+      "Porongurup": { lat: -34.6680, lon: 117.8970 },
+      "Borden": { lat: -34.0740, lon: 118.2660 },
+      "Jerramungup": { lat: -33.9410, lon: 118.9200 },
+      "Ravensthorpe": { lat: -33.5819, lon: 120.0455 },
+      "Munglinup": { lat: -33.7130, lon: 120.8670 },
+      "Merivale": { lat: -33.7970, lon: 122.1500 },
+      "Lake King": { lat: -33.0860, lon: 119.6760 },
+      "Newdegate": { lat: -33.0940, lon: 118.8350 },
+      "Kondinin": { lat: -32.4940, lon: 118.2640 },
+      "Corrigin": { lat: -32.3330, lon: 117.8750 },
+      "Brookton": { lat: -32.3680, lon: 117.0100 }
+    };
+
+    const ROUTE_SEGMENTS = {
+      "Perth>Gracetown": ["Perth", "Mandurah", "Bunbury", "Busselton", "Dunsborough", "Gracetown"],
+      "Gracetown>Margaret River": ["Gracetown", "Cowaramup", "Margaret River"],
+      "Margaret River>Hamelin Bay": ["Margaret River", "Witchcliffe", "Karridale", "Hamelin Bay"],
+      "Hamelin Bay>Peaceful Bay": ["Hamelin Bay", "Karridale", "Nannup", "Manjimup", "Walpole", "Peaceful Bay"],
+      "Hamelin Bay>Denmark": ["Hamelin Bay", "Karridale", "Nannup", "Manjimup", "Walpole", "Denmark"],
+      "Hamelin Bay>Albany": ["Hamelin Bay", "Karridale", "Nannup", "Manjimup", "Walpole", "Denmark", "Albany"],
+      "Peaceful Bay>Denmark": ["Peaceful Bay", "Walpole", "Denmark"],
+      "Peaceful Bay>Albany": ["Peaceful Bay", "Walpole", "Denmark", "Albany"],
+      "Denmark>Albany": ["Denmark", "Albany"],
+      "Albany>Bremer Bay": ["Albany", "Porongurup", "Borden", "Jerramungup", "Bremer Bay"],
+      "Bremer Bay>Hopetoun": ["Bremer Bay", "Jerramungup", "Ravensthorpe", "Hopetoun"],
+      "Hopetoun>Esperance": ["Hopetoun", "Ravensthorpe", "Munglinup", "Esperance"],
+      "Esperance>Cape Le Grand": ["Esperance", "Merivale", "Cape Le Grand"],
+      "Cape Le Grand>Hyden": ["Cape Le Grand", "Esperance", "Munglinup", "Ravensthorpe", "Lake King", "Newdegate", "Hyden"],
+      "Esperance>Hyden": ["Esperance", "Munglinup", "Ravensthorpe", "Lake King", "Newdegate", "Hyden"],
+      "Hyden>Perth": ["Hyden", "Kondinin", "Corrigin", "Brookton", "Perth"]
+    };
+
+    const TRAVEL_TIMES = {
+      "Perth>Gracetown": 3.5,
+      "Gracetown>Margaret River": 0.5,
+      "Margaret River>Hamelin Bay": 0.5,
+      "Hamelin Bay>Peaceful Bay": 4.5,
+      "Hamelin Bay>Denmark": 4,
+      "Hamelin Bay>Albany": 4.5,
+      "Peaceful Bay>Denmark": 1,
+      "Peaceful Bay>Albany": 1.5,
+      "Denmark>Albany": 0.5,
+      "Albany>Bremer Bay": 2,
+      "Bremer Bay>Hopetoun": 3,
+      "Hopetoun>Esperance": 2,
+      "Esperance>Cape Le Grand": 1,
+      "Cape Le Grand>Hyden": 5.5,
+      "Esperance>Hyden": 4.5,
+      "Hyden>Perth": 4
+    };
+
+    const TIME_LABEL_OFFSETS = {
+      "Perth>Gracetown": { dx: -10, dy: 8 },
+      "Gracetown>Margaret River": { dx: 46, dy: 0 },
+      "Margaret River>Hamelin Bay": { dx: 56, dy: 10 },
+      "Hamelin Bay>Peaceful Bay": { dx: 20, dy: -18 },
+      "Hamelin Bay>Denmark": { dx: 18, dy: -18 },
+      "Hamelin Bay>Albany": { dx: 20, dy: -18 },
+      "Peaceful Bay>Denmark": { dx: -8, dy: -18 },
+      "Peaceful Bay>Albany": { dx: 20, dy: -18 },
+      "Denmark>Albany": { dx: 34, dy: 14 },
+      "Albany>Bremer Bay": { dx: 0, dy: -16 },
+      "Bremer Bay>Hopetoun": { dx: 0, dy: -16 },
+      "Hopetoun>Esperance": { dx: 0, dy: -18 },
+      "Esperance>Cape Le Grand": { dx: 18, dy: 18 },
+      "Cape Le Grand>Hyden": { dx: 0, dy: -18 },
+      "Esperance>Hyden": { dx: 0, dy: -18 },
+      "Hyden>Perth": { dx: 0, dy: -18 }
+    };
+
+    const ROUTE_LABEL_NAMES = {
+      "Gracetown": "Grace",
+      "Margaret River": "Marg R",
+      "Hamelin Bay": "Hamelin",
+      "Peaceful Bay": "Peaceful",
+      "Bremer Bay": "Bremer",
+      "Esperance": "Esper",
+      "Cape Le Grand": "Cape LG"
+    };
+
+    const ACCOMMODATION = {
+      "Gracetown": [
+        {
+          name: "Gracetown Caravan Park",
+          type: "Powered sites, cabins and chalets",
+          price: "Check direct",
+          url: "https://www.gracetowncaravanpark.com.au/",
+          note: "Closest fit for the Gracetown base; family park near Cowaramup Bay."
+        },
+        {
+          name: "RAC Busselton Holiday Park",
+          type: "Fallback powered and ensuite sites",
+          price: "Check direct",
+          url: "https://www.margaretriver.com/plan-your-trip/accommodation/rac-busselton-holiday-park/",
+          note: "North of the route but useful if Gracetown is booked out."
+        }
+      ],
+      "Margaret River": [
+        {
+          name: "Margaret River Tourist Park",
+          type: "Powered, unpowered and ensuite caravan sites",
+          price: "Check direct",
+          url: "https://www.margaretriver.com/plan-your-trip/accommodation/margaret-river-tourist-park/",
+          note: "Town-base option with caravan/camping sites and cabins."
+        },
+        {
+          name: "Riverview Tourist Park",
+          type: "Caravan and campervan bays",
+          price: "Check direct",
+          url: "https://www.margaretriver.com/plan-your-trip/accommodation/riverview-tourist-park/",
+          note: "Central Margaret River, river setting; note tent restrictions."
+        },
+        {
+          name: "Prevelly Caravan Park",
+          type: "Beachside powered and non-powered campsites",
+          price: "Check direct",
+          url: "https://prevellycaravanpark.com.au/accommodation/",
+          note: "Beachside fallback close to surf/coast activities."
+        }
+      ],
+      "Hamelin Bay": [
+        {
+          name: "Hamelin Bay Holiday Park",
+          type: "Powered and unpowered caravan sites",
+          price: "Powered sites published from about $47-$60/night for 2 adults",
+          url: "https://hamelinbayholidaypark.com.au/facilities-rates/camping-caravans",
+          note: "Beachfront holiday park; bookings essential during peak periods."
+        }
+      ],
+      "Peaceful Bay": [
+        {
+          name: "Peaceful Bay Caravan Park",
+          type: "Powered and unpowered sites",
+          price: "Check direct",
+          url: "https://www.peacefulbaywa.com.au/accommodation/",
+          note: "Large grassed sites, power/water hookups, camp kitchen and general store."
+        },
+        {
+          name: "Friend holiday house",
+          type: "Private stay option",
+          price: "Confirm privately",
+          url: "",
+          note: "Keep as the preferred low-friction option if available."
+        }
+      ],
+      "Denmark": [
+        {
+          name: "Denmark Rivermouth Caravan Park",
+          type: "Powered sites, chalets, studios and villas",
+          price: "Check direct",
+          url: "https://www.denmarkrivermouthcaravanpark.com.au/",
+          note: "Beside Wilson Inlet and the Denmark River; about 110 powered sites."
+        },
+        {
+          name: "BIG4 Denmark Ocean Beach Holiday Park",
+          type: "Powered and unpowered sites, cabins and chalets",
+          price: "Check direct",
+          url: "https://www.big4.com.au/caravan-parks/wa/south-west/denmark-ocean-beach-holiday-park",
+          note: "Large flat sites near Ocean Beach with full holiday-park facilities."
+        }
+      ],
+      "Albany": [
+        {
+          name: "BIG4 Middleton Beach Holiday Park",
+          type: "Powered caravan sites and ensuite sites",
+          price: "Check direct",
+          url: "https://www.big4middletonbeach.com.au/",
+          note: "Beachfront Albany option with direct Middleton Beach access."
+        },
+        {
+          name: "BIG4 Emu Beach Holiday Park",
+          type: "Powered and unpowered caravan/camping sites",
+          price: "Check direct",
+          url: "https://www.big4emubeach.com.au/",
+          note: "Family-friendly coastal option near Emu Point."
+        },
+        {
+          name: "Panorama Caravan Park",
+          type: "Powered and unpowered nature-based sites",
+          price: "Check direct",
+          url: "https://www.panoramacp.com.au/",
+          note: "Waterfront Big Grove option near Torndirrup National Park."
+        }
+      ],
+      "Bremer Bay": [
+        {
+          name: "Bremer Bay Caravan Park",
+          type: "Powered watered grass sites",
+          price: "Peak powered sites published around $68/night for 2 guests",
+          url: "https://bremerbaycaravanpark.com.au/accommodation/",
+          note: "Central caravan park with powered/watered sites."
+        },
+        {
+          name: "Bremer Bay Beaches Resort Tourist Park",
+          type: "Powered and unpowered sites",
+          price: "Check direct",
+          url: "https://bremerbaybeaches.com.au/accommodation/powered-sites/",
+          note: "Powered sites suitable for caravans, camper trailers and motorhomes."
+        }
+      ],
+      "Hopetoun": [
+        {
+          name: "Wavecrest Village & Tourist Park",
+          type: "Powered caravan sites",
+          price: "Check direct",
+          url: "https://www.wavecrestvillage.net.au/",
+          note: "Large powered gravel sites with camp kitchen and amenities."
+        },
+        {
+          name: "Wavecrest Tourist Park",
+          type: "Powered sites and park homes",
+          price: "Check direct",
+          url: "https://www.wavecrestvillage.net.au/tourist-park/",
+          note: "Useful Fitzgerald River National Park base."
+        }
+      ],
+      "Esperance": [
+        {
+          name: "RAC Esperance Holiday Park",
+          type: "Powered and ensuite caravan sites",
+          price: "Check direct",
+          url: "https://parksandresorts.rac.com.au/esperance/accommodation-and-sites/caravan-park/",
+          note: "Beachfront town option; well set up for caravanners."
+        },
+        {
+          name: "Bathers Paradise Caravan Park",
+          type: "Powered and unpowered sites",
+          price: "Unpowered sites published from about $40/night",
+          url: "https://www.bathersparadise.com.au/",
+          note: "Town caravan park with updated camp kitchen and amenities."
+        },
+        {
+          name: "Esperance Visitor Centre caravan park list",
+          type: "Fallback shortlist",
+          price: "Varies",
+          url: "https://www.visitesperance.com/caravan-parks",
+          note: "Esperance is very busy Dec-May; confirm booking before travelling."
+        }
+      ],
+      "Cape Le Grand": [
+        {
+          name: "Lucky Bay Campground",
+          type: "Unpowered national park campsites",
+          price: "Published camping fees from $20/adult/night plus park entry",
+          url: "https://www.visitesperance.com/lucky-bay-campground",
+          note: "Bookings essential via ParkStay WA; book up to 180 days before arrival."
+        },
+        {
+          name: "Le Grand Beach Campground",
+          type: "Unpowered national park campground",
+          price: "DBCA/ParkStay fees apply",
+          url: "https://www.visitesperance.com/le-grand-beach-campground",
+          note: "Alternative inside Cape Le Grand if Lucky Bay is unavailable."
+        }
+      ],
+      "Hyden": [
+        {
+          name: "Wave Rock Caravan Park",
+          type: "Powered and unpowered sites",
+          price: "Check direct",
+          url: "https://waverock.com.au/accommodation/wave-rock-caravan-park/",
+          note: "At the base of Wave Rock with camp kitchen, amenities and LPG."
+        },
+        {
+          name: "Wave Rock Resort / Hotel",
+          type: "Cabins, resort villas and motel-style accommodation",
+          price: "Check direct",
+          url: "https://waverock.com.au/accommodation/",
+          note: "Fallback if the one-night caravan site is unavailable."
+        }
+      ]
+    };
+
+    const OPTIONS = {
+      option1: {
+        label: "Option 1 - Early December, 35 nights",
+        title: "Option 1: Early December Start",
+        description: "A 35-night loop with longer bases and a Jan 9 return.",
+        baseLoopKm: BASE_LOOP_KM,
+        notes: [
+          "Strong balance of base length and school-holiday timing.",
+          "Adds a Denmark pause between Peaceful Bay and Albany.",
+          "Cape Le Grand is shown as a separate camping base for the Lucky Bay side trip.",
+          "Return is well before the Jan 25 latest-return requirement."
+        ],
+        stops: [
+          stop("Gracetown", "2026-12-05", 3, "Beach reset and Cowaramup access."),
+          stop("Margaret River", "2026-12-08", 4, "Main winery, caves, and food base."),
+          stop("Hamelin Bay", "2026-12-12", 3, "Coast, stingrays, Augusta day trip."),
+          stop("Peaceful Bay", "2026-12-15", 2, "Friend holiday house option."),
+          stop("Denmark", "2026-12-17", 4, "Greens Pool, Elephant Rocks, forest and food stop."),
+          stop("Albany", "2026-12-21", 4, "Torndirrup, Middleton Beach, museums."),
+          stop("Bremer Bay", "2026-12-25", 3, "Beaches and whale-watching season."),
+          stop("Hopetoun", "2026-12-28", 2, "Fitzgerald River access."),
+          stop("Esperance", "2026-12-30", 5, "Town services and coast drives."),
+          stop("Cape Le Grand", "2027-01-04", 4, "Lucky Bay camp/beach stay if towing works."),
+          stop("Hyden", "2027-01-08", 1, "One-night Wave Rock break home.")
+        ]
+      },
+      option2: {
+        label: "Option 2 - Original duration, return Jan 24",
+        title: "Option 2: Original Duration",
+        description: "A 35-night loop starting Dec 20 and returning Sun 24 Jan 2027.",
+        baseLoopKm: BASE_LOOP_KM,
+        notes: [
+          "Original-duration version while still returning before Mon 25 Jan 2027.",
+          "Adds a Denmark pause between Peaceful Bay and Albany.",
+          "Uses the same night pattern as Option 1, shifted later into January.",
+          "Useful if bookings allow a slower holiday-period pace."
+        ],
+        stops: [
+          stop("Gracetown", "2026-12-20", 3, "Beach reset and Cowaramup access."),
+          stop("Margaret River", "2026-12-23", 4, "Main winery, caves, and food base."),
+          stop("Hamelin Bay", "2026-12-27", 3, "Coast, stingrays, Augusta day trip."),
+          stop("Peaceful Bay", "2026-12-30", 2, "Friend holiday house option."),
+          stop("Denmark", "2027-01-01", 4, "Greens Pool, Elephant Rocks, forest and food stop."),
+          stop("Albany", "2027-01-05", 4, "Torndirrup, Middleton Beach, museums."),
+          stop("Bremer Bay", "2027-01-09", 3, "Beaches and whale-watching season."),
+          stop("Hopetoun", "2027-01-12", 2, "Fitzgerald River access."),
+          stop("Esperance", "2027-01-14", 5, "Town services and coast drives."),
+          stop("Cape Le Grand", "2027-01-19", 4, "Lucky Bay camp/beach stay if towing works."),
+          stop("Hyden", "2027-01-23", 1, "One-night Wave Rock break home.")
+        ]
+      },
+      option3: {
+        label: "Option 3 - Early January, 23 nights",
+        title: "Option 3: Compressed January Window",
+        description: "A 23-night loop returning Mon 25 Jan 2027.",
+        baseLoopKm: BASE_LOOP_KM,
+        notes: [
+          "Compressed version that still reaches the required towns.",
+          "Includes Peaceful Bay and makes Denmark the longer southern coast pause.",
+          "Albany and Hopetoun become short transit bases to fit the compressed window.",
+          "Return is exactly one week before WA Term 1 begins."
+        ],
+        stops: [
+          stop("Gracetown", "2027-01-02", 2, "Beach reset and Cowaramup access."),
+          stop("Margaret River", "2027-01-04", 3, "Main winery, caves, and food base."),
+          stop("Hamelin Bay", "2027-01-07", 2, "Coast, stingrays, Augusta day trip."),
+          stop("Peaceful Bay", "2027-01-09", 2, "Friend holiday house option."),
+          stop("Denmark", "2027-01-11", 4, "Greens Pool, Elephant Rocks, forest and food stop."),
+          stop("Albany", "2027-01-15", 1, "Torndirrup, Middleton Beach, museums."),
+          stop("Bremer Bay", "2027-01-16", 3, "Beaches and whale-watching season."),
+          stop("Hopetoun", "2027-01-19", 1, "Fitzgerald River access."),
+          stop("Esperance", "2027-01-20", 4, "Town services and coast drives."),
+          stop("Hyden", "2027-01-24", 1, "One-night Wave Rock break home.")
+        ]
+      }
+    };
+
+    function stop(name, arrive, nights, note) {
+      return {
+        name,
+        arrive,
+        nights,
+        depart: addDays(arrive, nights),
+        note
+      };
+    }
+
+    function parseIso(iso) {
+      const [year, month, day] = iso.split("-").map(Number);
+      return new Date(Date.UTC(year, month - 1, day));
+    }
+
+    function toIso(date) {
+      return date.toISOString().slice(0, 10);
+    }
+
+    function addDays(iso, days) {
+      const date = parseIso(iso);
+      date.setUTCDate(date.getUTCDate() + days);
+      return toIso(date);
+    }
+
+    function daysBetween(startIso, endIso) {
+      return Math.round((parseIso(endIso) - parseIso(startIso)) / MS_PER_DAY);
+    }
+
+    function formatDate(iso, compact = false) {
+      const date = parseIso(iso);
+      return new Intl.DateTimeFormat("en-AU", {
+        weekday: compact ? "short" : "short",
+        day: "2-digit",
+        month: compact ? "short" : "short",
+        year: compact ? undefined : "numeric",
+        timeZone: "UTC"
+      }).format(date);
+    }
+
+    function formatDateTwoLine(iso) {
+      const date = parseIso(iso);
+      const top = new Intl.DateTimeFormat("en-AU", {
+        weekday: "short",
+        day: "2-digit",
+        month: "short",
+        timeZone: "UTC"
+      }).format(date);
+      const year = new Intl.DateTimeFormat("en-AU", {
+        year: "numeric",
+        timeZone: "UTC"
+      }).format(date);
+      return { top, year };
+    }
+
+    function getOptionBounds(option) {
+      const first = option.stops[0];
+      const last = option.stops[option.stops.length - 1];
+      return {
+        start: first.arrive,
+        finish: last.depart,
+        nights: option.stops.reduce((sum, item) => sum + item.nights, 0),
+        days: daysBetween(first.arrive, last.depart) + 1
+      };
+    }
+
+    function selectedOption() {
+      return OPTIONS[document.getElementById("optionSelect").value];
+    }
+
+    function init() {
+      const select = document.getElementById("optionSelect");
+      Object.entries(OPTIONS).forEach(([key, option]) => {
+        const optionEl = document.createElement("option");
+        optionEl.value = key;
+        optionEl.textContent = option.label;
+        select.append(optionEl);
+      });
+      select.value = "option1";
+      select.addEventListener("change", renderAll);
+      document.getElementById("printButton").addEventListener("click", () => window.print());
+      document.getElementById("icsButton").addEventListener("click", downloadIcs);
+      [
+        "towingConsumptionInput",
+        "localConsumptionInput",
+        "priceInput",
+        "localKmInput",
+        "tripDaysInput",
+        "accomNightInput",
+        "parkDayInput",
+        "parkFeeDaysInput"
+      ].forEach((id) => {
+        document.getElementById(id).addEventListener("input", renderFuel);
+      });
+      renderAll();
+    }
+
+    function renderAll() {
+      const option = selectedOption();
+      const bounds = getOptionBounds(option);
+      document.getElementById("tripDaysInput").value = bounds.days;
+      document.getElementById("parkFeeDaysInput").value = bounds.days;
+      renderSummary(option);
+      renderMap(option);
+      renderCalendar(option);
+      renderTable(option);
+      renderNotes(option);
+      renderAccommodation(option);
+      renderFuel();
+    }
+
+    function renderSummary(option) {
+      const bounds = getOptionBounds(option);
+      document.getElementById("optionTitle").textContent = option.title;
+      const meta = document.getElementById("optionMeta");
+      meta.innerHTML = "";
+      [
+        option.description,
+        `${formatDate(bounds.start)} to ${formatDate(bounds.finish)}`,
+        `${bounds.nights} nights`
+      ].forEach((text) => {
+        const item = document.createElement("span");
+        item.className = "pill";
+        item.textContent = text;
+        meta.append(item);
+      });
+
+      const metrics = [
+        { value: formatDate(bounds.start, true), label: "Depart Perth" },
+        { value: formatDate(bounds.finish, true), label: "Return Perth" },
+        { value: `${bounds.nights}`, label: "Nights away" }
+      ];
+      const metricGrid = document.getElementById("metricGrid");
+      metricGrid.innerHTML = "";
+      metrics.forEach((metric) => {
+        const el = document.createElement("div");
+        el.className = "metric";
+        el.innerHTML = `<strong>${metric.value}</strong><span>${metric.label}</span>`;
+        metricGrid.append(el);
+      });
+
+      document.getElementById("mapDistancePill").textContent = `${option.baseLoopKm.toLocaleString("en-AU")} km base loop`;
+      document.getElementById("notesPill").textContent = `${bounds.nights} nights`;
+      document.getElementById("tablePill").textContent = `${option.stops.length} overnight stops`;
+      document.getElementById("accomPill").textContent = "Availability links";
+    }
+
+    function project(location) {
+      const lonMin = 114.45;
+      const lonMax = 122.55;
+      const latMin = -35.32;
+      const latMax = -31.35;
+      const x = 48 + ((location.lon - lonMin) / (lonMax - lonMin)) * 904;
+      const y = 46 + ((latMax - location.lat) / (latMax - latMin)) * 520;
+      return { x, y };
+    }
+
+    function markerPoint(location) {
+      const point = project(location);
+      return {
+        x: point.x + (location.mx || 0),
+        y: point.y + (location.my || 0)
+      };
+    }
+
+    function googlePlace(name) {
+      return MAP_PLACES[name] || `${name} WA, Australia`;
+    }
+
+    function googleMapsDirectionsUrl(option) {
+      const params = new URLSearchParams({
+        api: "1",
+        origin: googlePlace("Perth"),
+        destination: googlePlace("Perth"),
+        travelmode: "driving"
+      });
+      params.set("waypoints", option.stops.map((item) => googlePlace(item.name)).join("|"));
+      return `https://www.google.com/maps/dir/?${params.toString()}`;
+    }
+
+    function googleMapsEmbedUrl(option) {
+      const daddr = [...option.stops.map((item) => googlePlace(item.name)), googlePlace("Perth")].join(" to:");
+      const params = new URLSearchParams({
+        saddr: googlePlace("Perth"),
+        daddr,
+        output: "embed"
+      });
+      return `https://maps.google.com/maps?${params.toString()}`;
+    }
+
+    function svgEl(name, attrs = {}) {
+      const el = document.createElementNS("http://www.w3.org/2000/svg", name);
+      Object.entries(attrs).forEach(([key, value]) => el.setAttribute(key, value));
+      return el;
+    }
+
+    function pointsAttr(coords) {
+      return coords
+        .map((coord) => project(coord))
+        .map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`)
+        .join(" ");
+    }
+
+    function pointByName(name) {
+      return LOCATIONS[name] || VIA_POINTS[name];
+    }
+
+    function segmentKey(from, to) {
+      return `${from}>${to}`;
+    }
+
+    function segmentCoords(from, to) {
+      const names = ROUTE_SEGMENTS[segmentKey(from, to)];
+      if (names) return names.map((name) => pointByName(name)).filter(Boolean);
+      return [pointByName(from), pointByName(to)].filter(Boolean);
+    }
+
+    function routeCoords(routeNames) {
+      return routeNames.reduce((coords, name, index) => {
+        if (index === routeNames.length - 1) return coords;
+        const next = routeNames[index + 1];
+        const segment = segmentCoords(name, next);
+        coords.push(...(coords.length ? segment.slice(1) : segment));
+        return coords;
+      }, []);
+    }
+
+    function linePath(coords) {
+      const points = coords.map((coord) => project(coord));
+      return points
+        .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x.toFixed(1)} ${point.y.toFixed(1)}`)
+        .join(" ");
+    }
+
+    function midpointAlong(points) {
+      const lengths = [];
+      let total = 0;
+      for (let index = 0; index < points.length - 1; index += 1) {
+        const a = points[index];
+        const b = points[index + 1];
+        const length = Math.hypot(b.x - a.x, b.y - a.y);
+        lengths.push(length);
+        total += length;
+      }
+      let remaining = total / 2;
+      for (let index = 0; index < lengths.length; index += 1) {
+        const length = lengths[index];
+        if (remaining <= length || index === lengths.length - 1) {
+          const a = points[index];
+          const b = points[index + 1];
+          const ratio = length ? remaining / length : 0;
+          return {
+            x: a.x + (b.x - a.x) * ratio,
+            y: a.y + (b.y - a.y) * ratio
+          };
+        }
+        remaining -= length;
+      }
+      return points[0] || { x: 0, y: 0 };
+    }
+
+    function travelTimeText(hours) {
+      if (hours === 0.5) return "0.5h";
+      const whole = Math.floor(hours);
+      return hours % 1 === 0 ? `${whole}h` : `${whole}.5h`;
+    }
+
+    function routeLabelName(name) {
+      return ROUTE_LABEL_NAMES[name] || name;
+    }
+
+    function boundedBox(box) {
+      const minX = 28;
+      const maxX = 972;
+      const minY = 28;
+      const maxY = 592;
+      const x = Math.min(Math.max(box.x, minX), maxX - box.width);
+      const y = Math.min(Math.max(box.y, minY), maxY - box.height);
+      return { ...box, x, y };
+    }
+
+    function boxesOverlap(a, b, pad = 5) {
+      return !(
+        a.x + a.width + pad < b.x ||
+        b.x + b.width + pad < a.x ||
+        a.y + a.height + pad < b.y ||
+        b.y + b.height + pad < a.y
+      );
+    }
+
+    function reserveBox(placedBoxes, box) {
+      placedBoxes.push(boundedBox(box));
+    }
+
+    function chooseBox(anchor, width, height, candidates, placedBoxes) {
+      const options = candidates.length ? candidates : [{ dx: 0, dy: -34 }];
+      let fallback = null;
+      for (const offset of options) {
+        const box = boundedBox({
+          x: anchor.x + offset.dx - width / 2,
+          y: anchor.y + offset.dy - height / 2,
+          width,
+          height
+        });
+        if (!fallback) fallback = box;
+        if (!placedBoxes.some((placed) => boxesOverlap(box, placed))) {
+          placedBoxes.push(box);
+          return box;
+        }
+      }
+      for (const radius of [48, 72, 96, 124, 152, 184, 216]) {
+        for (const angle of [-90, -45, 0, 45, 90, 135, 180, -135]) {
+          const radians = angle * Math.PI / 180;
+          const box = boundedBox({
+            x: anchor.x + Math.cos(radians) * radius - width / 2,
+            y: anchor.y + Math.sin(radians) * radius - height / 2,
+            width,
+            height
+          });
+          if (!placedBoxes.some((placed) => boxesOverlap(box, placed))) {
+            placedBoxes.push(box);
+            return box;
+          }
+        }
+      }
+      placedBoxes.push(fallback);
+      return fallback;
+    }
+
+    function chooseNearbyBox(anchor, width, height, preferred, placedBoxes, extraCandidates = [], avoidSegments = []) {
+      const candidates = [
+        preferred,
+        ...extraCandidates,
+        { dx: preferred.dx + 18, dy: preferred.dy },
+        { dx: preferred.dx - 18, dy: preferred.dy },
+        { dx: preferred.dx, dy: preferred.dy + 16 },
+        { dx: preferred.dx, dy: preferred.dy - 16 },
+        { dx: preferred.dx + 26, dy: preferred.dy + 12 },
+        { dx: preferred.dx - 26, dy: preferred.dy - 12 }
+      ];
+      for (const radius of [74, 100, 132, 168, 206, 246]) {
+        for (const angle of [-135, -90, -45, 0, 45, 90, 135, 180]) {
+          const radians = angle * Math.PI / 180;
+          candidates.push({
+            dx: Math.cos(radians) * radius,
+            dy: Math.sin(radians) * radius
+          });
+        }
+      }
+      let best = null;
+      let bestScore = Number.POSITIVE_INFINITY;
+      for (const offset of candidates) {
+        const box = boundedBox({
+          x: anchor.x + offset.dx - width / 2,
+          y: anchor.y + offset.dy - height / 2,
+          width,
+          height
+        });
+        const overlapScore = placedBoxes.reduce((sum, placed) => sum + overlapArea(box, placed), 0) * 120;
+        const routeScore = routeCollisionCount(box, avoidSegments, 10) * 100000;
+        const distanceScore = Math.hypot(offset.dx - preferred.dx, offset.dy - preferred.dy) * 0.08;
+        const score = routeScore + overlapScore + distanceScore;
+        if (score === 0) {
+          placedBoxes.push(box);
+          return box;
+        }
+        if (score < bestScore) {
+          bestScore = score;
+          best = box;
+        }
+      }
+      placedBoxes.push(best);
+      return best;
+    }
+
+    function chooseDestinationPlacement(anchor, rawPoint, width, height, preferred, placedBoxes, routeSegments, placedLeaderSegments, extraCandidates = []) {
+      const candidates = [
+        preferred,
+        ...extraCandidates,
+        { dx: preferred.dx + 24, dy: preferred.dy },
+        { dx: preferred.dx - 24, dy: preferred.dy },
+        { dx: preferred.dx, dy: preferred.dy + 22 },
+        { dx: preferred.dx, dy: preferred.dy - 22 },
+        { dx: preferred.dx + 36, dy: preferred.dy + 18 },
+        { dx: preferred.dx - 36, dy: preferred.dy - 18 }
+      ];
+      for (const radius of [96, 126, 158, 196, 238, 284, 330]) {
+        for (const angle of [-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180]) {
+          const radians = angle * Math.PI / 180;
+          candidates.push({
+            dx: Math.cos(radians) * radius,
+            dy: Math.sin(radians) * radius
+          });
+        }
+      }
+
+      let best = null;
+      let bestScore = Number.POSITIVE_INFINITY;
+      for (const offset of candidates) {
+        const box = boundedBox({
+          x: anchor.x + offset.dx - width / 2,
+          y: anchor.y + offset.dy - height / 2,
+          width,
+          height
+        });
+        const leaderPoints = chooseLeaderPath(rawPoint, box, placedBoxes, routeSegments, placedLeaderSegments);
+        const boxOverlapArea = placedBoxes.reduce((sum, placed) => sum + overlapArea(box, placed), 0);
+        const boxOverlapCount = placedBoxes.filter((placed) => boxesOverlap(box, placed, 1)).length;
+        const boxRouteHits = routeCollisionCount(box, routeSegments, 10);
+        const boxLeaderHits = boxLeaderCollisionCount(box, placedLeaderSegments, 5);
+        const leaderBoxHits = leaderPathBoxCollisionCount(leaderPoints, placedBoxes, 1);
+        const leaderRouteHits = leaderPathRouteCollisionCount(leaderPoints, routeSegments, 5);
+        const leaderLeaderHits = leaderPathLeaderCollisionCount(leaderPoints, placedLeaderSegments, 4);
+        const distanceScore = Math.hypot(offset.dx - preferred.dx, offset.dy - preferred.dy) * 0.08;
+        const leaderLengthScore = pathLength(leaderPoints) * 0.02;
+        const score =
+          boxRouteHits * 140000 +
+          boxOverlapCount * 120000 +
+          boxLeaderHits * 110000 +
+          leaderBoxHits * 110000 +
+          leaderRouteHits * 110000 +
+          leaderLeaderHits * 110000 +
+          boxOverlapArea * 120 +
+          distanceScore +
+          leaderLengthScore;
+        if (score < bestScore) {
+          bestScore = score;
+          best = { box, leaderPoints };
+        }
+        if (boxRouteHits === 0 && boxOverlapCount === 0 && boxLeaderHits === 0 && leaderBoxHits === 0 && leaderRouteHits === 0 && leaderLeaderHits === 0) {
+          best = { box, leaderPoints };
+          break;
+        }
+      }
+
+      placedBoxes.push(best.box);
+      return best;
+    }
+
+    function chooseLeaderPath(rawPoint, box, placedBoxes, routeSegments, placedLeaderSegments) {
+      const end = nearestPointOnBox(rawPoint, box);
+      const start = offsetToward(rawPoint, end, 10);
+      const horizontalLane = Math.max(48, Math.min(92, Math.abs(end.x - start.x) + 52));
+      const verticalLane = Math.max(42, Math.min(84, Math.abs(end.y - start.y) + 34));
+      const stepY = Math.max(26, Math.min(48, Math.abs(end.y - start.y) / 2));
+      const stepX = Math.max(34, Math.min(64, Math.abs(end.x - start.x) / 2 + 28));
+      const candidates = [
+        [start, end],
+        [start, { x: end.x, y: start.y }, end],
+        [start, { x: start.x, y: end.y }, end],
+        [start, { x: (start.x + end.x) / 2, y: start.y }, { x: (start.x + end.x) / 2, y: end.y }, end],
+        [start, { x: start.x, y: (start.y + end.y) / 2 }, { x: end.x, y: (start.y + end.y) / 2 }, end],
+        [start, { x: start.x + horizontalLane, y: start.y }, { x: start.x + horizontalLane, y: end.y }, end],
+        [start, { x: start.x - horizontalLane, y: start.y }, { x: start.x - horizontalLane, y: end.y }, end],
+        [start, { x: start.x, y: start.y + verticalLane }, { x: end.x, y: start.y + verticalLane }, end],
+        [start, { x: start.x, y: start.y - verticalLane }, { x: end.x, y: start.y - verticalLane }, end],
+        [start, { x: start.x, y: start.y - stepY }, { x: start.x + horizontalLane, y: start.y - stepY }, { x: start.x + horizontalLane, y: end.y }, end],
+        [start, { x: start.x, y: start.y - stepY }, { x: start.x - horizontalLane, y: start.y - stepY }, { x: start.x - horizontalLane, y: end.y }, end],
+        [start, { x: start.x, y: start.y + stepY }, { x: start.x + horizontalLane, y: start.y + stepY }, { x: start.x + horizontalLane, y: end.y }, end],
+        [start, { x: start.x, y: start.y + stepY }, { x: start.x - horizontalLane, y: start.y + stepY }, { x: start.x - horizontalLane, y: end.y }, end],
+        [start, { x: start.x + stepX, y: start.y }, { x: start.x + stepX, y: start.y + verticalLane }, { x: end.x, y: start.y + verticalLane }, end],
+        [start, { x: start.x - stepX, y: start.y }, { x: start.x - stepX, y: start.y + verticalLane }, { x: end.x, y: start.y + verticalLane }, end],
+        [start, { x: start.x + stepX, y: start.y }, { x: start.x + stepX, y: start.y - verticalLane }, { x: end.x, y: start.y - verticalLane }, end],
+        [start, { x: start.x - stepX, y: start.y }, { x: start.x - stepX, y: start.y - verticalLane }, { x: end.x, y: start.y - verticalLane }, end]
+      ].map(cleanPath);
+
+      let best = candidates[0];
+      let bestScore = Number.POSITIVE_INFINITY;
+      candidates.forEach((points) => {
+        const score =
+          leaderPathBoxCollisionCount(points, placedBoxes, 1) * 120000 +
+          leaderPathRouteCollisionCount(points, routeSegments, 5) * 120000 +
+          leaderPathLeaderCollisionCount(points, placedLeaderSegments, 4) * 120000 +
+          pathLength(points) * 0.04 +
+          (points.length - 2) * 9;
+        if (score < bestScore) {
+          bestScore = score;
+          best = points;
+        }
+      });
+      return best;
+    }
+
+    function nearestPointOnBox(point, box) {
+      return {
+        x: Math.min(Math.max(point.x, box.x), box.x + box.width),
+        y: Math.min(Math.max(point.y, box.y), box.y + box.height)
+      };
+    }
+
+    function offsetToward(start, end, distance) {
+      const length = Math.hypot(end.x - start.x, end.y - start.y);
+      if (length <= 1) return start;
+      const amount = Math.min(distance, Math.max(0, length - 2));
+      return {
+        x: start.x + (end.x - start.x) / length * amount,
+        y: start.y + (end.y - start.y) / length * amount
+      };
+    }
+
+    function cleanPath(points) {
+      return points.filter((point, index) => index === 0 || Math.hypot(point.x - points[index - 1].x, point.y - points[index - 1].y) > 1);
+    }
+
+    function pathSegments(points) {
+      return points.slice(0, -1).map((point, index) => ({
+        start: point,
+        end: points[index + 1]
+      })).filter((segment) => Math.hypot(segment.end.x - segment.start.x, segment.end.y - segment.start.y) > 1);
+    }
+
+    function pathLength(points) {
+      return pathSegments(points).reduce((sum, segment) => sum + Math.hypot(segment.end.x - segment.start.x, segment.end.y - segment.start.y), 0);
+    }
+
+    function leaderPathBoxCollisionCount(points, boxes, padding = 1) {
+      return pathSegments(points).reduce((count, segment) => (
+        count + boxes.filter((box) => segmentIntersectsBox(segment.start, segment.end, box, padding)).length
+      ), 0);
+    }
+
+    function leaderPathRouteCollisionCount(points, routeSegments, padding = 5) {
+      return pathSegments(points).reduce((count, leaderSegment) => (
+        count + routeSegments.filter((routeSegment) => segmentDistance(leaderSegment.start, leaderSegment.end, routeSegment.start, routeSegment.end) < padding).length
+      ), 0);
+    }
+
+    function leaderPathLeaderCollisionCount(points, placedLeaderSegments, padding = 4) {
+      return pathSegments(points).reduce((count, leaderSegment) => (
+        count + placedLeaderSegments.filter((placed) => segmentDistance(leaderSegment.start, leaderSegment.end, placed.start, placed.end) < padding).length
+      ), 0);
+    }
+
+    function boxLeaderCollisionCount(box, placedLeaderSegments, padding = 4) {
+      return placedLeaderSegments.filter((leaderSegment) => segmentIntersectsBox(leaderSegment.start, leaderSegment.end, box, padding)).length;
+    }
+
+    function routeCollisionCount(box, segments, padding = 8) {
+      return segments.reduce((count, segment) => count + (segmentIntersectsBox(segment.start, segment.end, box, padding) ? 1 : 0), 0);
+    }
+
+    function segmentIntersectsBox(start, end, box, padding = 0) {
+      const expanded = {
+        x: box.x - padding,
+        y: box.y - padding,
+        width: box.width + padding * 2,
+        height: box.height + padding * 2
+      };
+      if (pointInBox(start, expanded) || pointInBox(end, expanded)) return true;
+      const left = expanded.x;
+      const right = expanded.x + expanded.width;
+      const top = expanded.y;
+      const bottom = expanded.y + expanded.height;
+      return [
+        [{ x: left, y: top }, { x: right, y: top }],
+        [{ x: right, y: top }, { x: right, y: bottom }],
+        [{ x: right, y: bottom }, { x: left, y: bottom }],
+        [{ x: left, y: bottom }, { x: left, y: top }]
+      ].some(([edgeStart, edgeEnd]) => segmentsIntersect(start, end, edgeStart, edgeEnd));
+    }
+
+    function pointInBox(point, box) {
+      return point.x >= box.x && point.x <= box.x + box.width && point.y >= box.y && point.y <= box.y + box.height;
+    }
+
+    function segmentsIntersect(a, b, c, d) {
+      const direction = (p, q, r) => (q.x - p.x) * (r.y - p.y) - (q.y - p.y) * (r.x - p.x);
+      const onSegment = (p, q, r) =>
+        Math.min(p.x, r.x) <= q.x && q.x <= Math.max(p.x, r.x) &&
+        Math.min(p.y, r.y) <= q.y && q.y <= Math.max(p.y, r.y);
+      const d1 = direction(a, b, c);
+      const d2 = direction(a, b, d);
+      const d3 = direction(c, d, a);
+      const d4 = direction(c, d, b);
+      if (((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) && ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0))) return true;
+      if (d1 === 0 && onSegment(a, c, b)) return true;
+      if (d2 === 0 && onSegment(a, d, b)) return true;
+      if (d3 === 0 && onSegment(c, a, d)) return true;
+      return d4 === 0 && onSegment(c, b, d);
+    }
+
+    function segmentDistance(a, b, c, d) {
+      if (segmentsIntersect(a, b, c, d)) return 0;
+      return Math.min(
+        pointSegmentDistance(a, c, d),
+        pointSegmentDistance(b, c, d),
+        pointSegmentDistance(c, a, b),
+        pointSegmentDistance(d, a, b)
+      );
+    }
+
+    function pointSegmentDistance(point, start, end) {
+      const lengthSquared = (end.x - start.x) ** 2 + (end.y - start.y) ** 2;
+      if (!lengthSquared) return Math.hypot(point.x - start.x, point.y - start.y);
+      const ratio = Math.max(0, Math.min(1, ((point.x - start.x) * (end.x - start.x) + (point.y - start.y) * (end.y - start.y)) / lengthSquared));
+      const projection = {
+        x: start.x + ratio * (end.x - start.x),
+        y: start.y + ratio * (end.y - start.y)
+      };
+      return Math.hypot(point.x - projection.x, point.y - projection.y);
+    }
+
+    function overlapArea(a, b) {
+      const width = Math.max(0, Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x));
+      const height = Math.max(0, Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y));
+      return width * height;
+    }
+
+    function chooseTextAnchor(anchor, width, height, preferred, placedBoxes) {
+      const candidates = [
+        preferred,
+        { dx: preferred.dx, dy: preferred.dy + 28 },
+        { dx: preferred.dx + 70, dy: preferred.dy },
+        { dx: preferred.dx - 70, dy: preferred.dy },
+        { dx: 74, dy: -24 },
+        { dx: 74, dy: 28 },
+        { dx: -74, dy: -24 },
+        { dx: -74, dy: 28 },
+        { dx: 0, dy: 54 }
+      ];
+      let fallback = null;
+      for (const offset of candidates) {
+        const x = anchor.x + offset.dx;
+        const y = anchor.y + offset.dy;
+        const box = boundedBox({ x, y: y - height + 4, width, height });
+        if (!fallback) fallback = { x, y, box };
+        if (!placedBoxes.some((placed) => boxesOverlap(box, placed, 3))) {
+          placedBoxes.push(box);
+          return { x: box.x, y: box.y + height - 4 };
+        }
+      }
+      for (const radius of [58, 86, 116, 148, 184, 220]) {
+        for (const angle of [-90, -45, 0, 45, 90, 135, 180, -135]) {
+          const radians = angle * Math.PI / 180;
+          const x = anchor.x + Math.cos(radians) * radius;
+          const y = anchor.y + Math.sin(radians) * radius;
+          const box = boundedBox({ x, y: y - height + 4, width, height });
+          if (!placedBoxes.some((placed) => boxesOverlap(box, placed, 3))) {
+            placedBoxes.push(box);
+            return { x: box.x, y: box.y + height - 4 };
+          }
+        }
+      }
+      placedBoxes.push(fallback.box);
+      return { x: fallback.box.x, y: fallback.box.y + height - 4 };
+    }
+
+    function drawTravelTime(layer, from, to, placedBoxes) {
+      const key = segmentKey(from, to);
+      const hours = TRAVEL_TIMES[key];
+      if (!hours) return;
+      const points = segmentCoords(from, to).map((coord) => project(coord));
+      if (points.length < 2) return;
+      const midpoint = midpointAlong(points);
+      const offset = TIME_LABEL_OFFSETS[key] || { dx: 0, dy: -18 };
+      const routeText = `${routeLabelName(from)}>${routeLabelName(to)}`;
+      const timeText = travelTimeText(hours);
+      const width = Math.max(62, routeText.length * 4.45 + 14, timeText.length * 6.2 + 16);
+      const height = 30;
+      const box = chooseNearbyBox(midpoint, width, height, offset, placedBoxes, [
+        { dx: offset.dx, dy: offset.dy + 12 },
+        { dx: offset.dx, dy: offset.dy - 12 },
+        { dx: offset.dx + 18, dy: offset.dy + 8 },
+        { dx: offset.dx - 18, dy: offset.dy - 8 }
+      ]);
+      const x = box.x + width / 2;
+      const group = svgEl("g");
+      group.append(svgEl("rect", {
+        class: "time-badge",
+        x: box.x,
+        y: box.y,
+        width,
+        height,
+        rx: 4
+      }));
+      const routeLabel = svgEl("text", {
+        class: "time-route-text",
+        x,
+        y: box.y + 10
+      });
+      routeLabel.textContent = routeText;
+      group.append(routeLabel);
+      const label = svgEl("text", {
+        class: "time-text",
+        x,
+        y: box.y + 22.5
+      });
+      label.textContent = timeText;
+      group.append(label);
+      layer.append(group);
+    }
+
+    function renderBaseMap() {
+      const layer = document.getElementById("baseMapLayer");
+      if (layer.dataset.rendered === "true") return;
+      layer.innerHTML = "";
+
+      const coastPoints = COASTLINE.map((coord) => project(coord));
+      const first = coastPoints[0];
+      const last = coastPoints[coastPoints.length - 1];
+      const coastLine = coastPoints
+        .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x.toFixed(1)} ${point.y.toFixed(1)}`)
+        .join(" ");
+      const landPath = `${coastLine} L 952 ${last.y.toFixed(1)} L 952 46 L 48 46 L ${first.x.toFixed(1)} ${first.y.toFixed(1)} Z`;
+
+      layer.append(svgEl("path", { class: "coast-land", d: landPath }));
+      COAST_FEATURES.forEach((feature) => {
+        layer.append(svgEl("path", { class: "coast-feature", d: linePath(feature) }));
+      });
+      layer.append(svgEl("path", { class: "coastline-halo", d: coastLine }));
+      layer.append(svgEl("path", { class: "coastline", d: coastLine }));
+      layer.dataset.rendered = "true";
+    }
+
+    function renderMap(option) {
+      renderBaseMap();
+      const routeLayer = document.getElementById("routeLayer");
+      const markerLayer = document.getElementById("markerLayer");
+      routeLayer.innerHTML = "";
+      markerLayer.innerHTML = "";
+
+      const mapsUrl = googleMapsDirectionsUrl(option);
+      document.getElementById("googleMapLink").href = mapsUrl;
+      document.getElementById("googleMapFrame").src = googleMapsEmbedUrl(option);
+
+      const routeNames = ["Perth", ...option.stops.map((item) => item.name), "Perth"];
+      const routePoints = routeCoords(routeNames).map((coord) => project(coord));
+      const routeSegments = routePoints.slice(0, -1).map((point, index) => ({
+        start: point,
+        end: routePoints[index + 1]
+      }));
+      const pointString = routePoints.map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(" ");
+      const placedBoxes = [];
+      const placedLeaderSegments = [];
+      const markerEntries = [
+        { name: "Perth", location: LOCATIONS.Perth, badge: "", color: "#303c42" },
+        ...option.stops.map((item, index) => ({
+          name: item.name,
+          location: LOCATIONS[item.name],
+          badge: `${item.nights}n`,
+          color: LOCATIONS[item.name].color
+        }))
+      ];
+
+      routeLayer.append(svgEl("polyline", { class: "route-halo", points: pointString }));
+      routeLayer.append(svgEl("polyline", { class: "route-line", points: pointString }));
+
+      routeNames.slice(0, -1).forEach((name, index) => {
+        drawTravelTime(routeLayer, name, routeNames[index + 1], placedBoxes);
+      });
+      markerEntries.forEach((entry) => {
+        drawDestinationLabel(markerLayer, entry.name, entry.location, entry.badge, entry.color, placedBoxes, routeSegments, placedLeaderSegments);
+      });
+
+      const bounds = getOptionBounds(option);
+      document.getElementById("mapCaption").textContent =
+        `Selected route: depart Perth ${formatDate(bounds.start)} and return ${formatDate(bounds.finish)}. Printable route is schematic, with approximate tow-day times rounded to the nearest half hour.`;
+
+      const list = document.getElementById("routeList");
+      list.innerHTML = "";
+      option.stops.forEach((item, index) => {
+        const row = document.createElement("div");
+        row.className = "route-row";
+        row.innerHTML = `
+          <span class="route-index" style="background:${LOCATIONS[item.name].color}">${index + 1}</span>
+          <span class="route-name">${item.name}</span>
+          <span class="route-nights">${item.nights} nights</span>
+        `;
+        list.append(row);
+      });
+    }
+
+    function drawDestinationLabel(layer, name, location, badge, color, placedBoxes, routeSegments, placedLeaderSegments) {
+      const rawPoint = project(location);
+      const point = markerPoint(location);
+      const group = svgEl("g");
+      const labelWidth = Math.max(92, Math.min(142, name.length * 7.3 + 34));
+      const labelHeight = 34;
+      const preferredOffset = {
+        dx: Number.isFinite(location.dx) ? location.dx : (labelWidth / 2 + 14),
+        dy: location.dy || -18
+      };
+      const placement = chooseDestinationPlacement(point, rawPoint, labelWidth, labelHeight, preferredOffset, placedBoxes, routeSegments, placedLeaderSegments, [
+        { dx: preferredOffset.dx, dy: preferredOffset.dy + 18 },
+        { dx: preferredOffset.dx, dy: preferredOffset.dy - 18 },
+        { dx: preferredOffset.dx + (preferredOffset.dx > 0 ? 18 : -18), dy: preferredOffset.dy },
+        { dx: -preferredOffset.dx, dy: preferredOffset.dy },
+        { dx: preferredOffset.dx, dy: 42 },
+        { dx: preferredOffset.dx, dy: -42 }
+      ]);
+      const box = placement.box;
+      placedLeaderSegments.push(...pathSegments(placement.leaderPoints));
+      group.append(svgEl("polyline", {
+        class: "destination-leader",
+        points: placement.leaderPoints.map((leaderPoint) => `${leaderPoint.x.toFixed(1)},${leaderPoint.y.toFixed(1)}`).join(" ")
+      }));
+      group.append(svgEl("circle", {
+        class: "destination-dot",
+        cx: rawPoint.x,
+        cy: rawPoint.y,
+        r: name === "Perth" ? 5.5 : 4.5,
+        style: `fill:${color}`
+      }));
+      group.append(svgEl("rect", {
+        class: "destination-label",
+        x: box.x,
+        y: box.y,
+        width: labelWidth,
+        height: labelHeight,
+        rx: 6
+      }));
+      group.append(svgEl("rect", {
+        class: "destination-strip",
+        x: box.x,
+        y: box.y,
+        width: 8,
+        height: labelHeight,
+        rx: 4,
+        fill: color
+      }));
+      const label = svgEl("text", {
+        class: "destination-name",
+        x: box.x + 14,
+        y: box.y + 13
+      });
+      label.textContent = name;
+      group.append(label);
+      const nights = svgEl("text", {
+        class: "destination-nights",
+        x: box.x + 14,
+        y: box.y + 26
+      });
+      nights.textContent = badge;
+      if (badge) group.append(nights);
+      layer.append(group);
+    }
+
+    function renderCalendar(option) {
+      const container = document.getElementById("calendarMonths");
+      container.innerHTML = "";
+      container.append(renderMonth(option, 2026, 11));
+      container.append(renderMonth(option, 2027, 0));
+      renderLegend(option);
+    }
+
+    function renderMonth(option, year, monthIndex) {
+      const month = document.createElement("section");
+      month.className = "month";
+      const title = new Intl.DateTimeFormat("en-AU", {
+        month: "long",
+        year: "numeric",
+        timeZone: "UTC"
+      }).format(new Date(Date.UTC(year, monthIndex, 1)));
+      month.innerHTML = `<h3>${title}</h3>`;
+
+      const weekdays = document.createElement("div");
+      weekdays.className = "weekdays";
+      ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].forEach((day) => {
+        const el = document.createElement("span");
+        el.textContent = day;
+        weekdays.append(el);
+      });
+      month.append(weekdays);
+
+      const days = document.createElement("div");
+      days.className = "days";
+      const first = new Date(Date.UTC(year, monthIndex, 1));
+      const lastDate = new Date(Date.UTC(year, monthIndex + 1, 0)).getUTCDate();
+      const startOffset = (first.getUTCDay() + 6) % 7;
+      const totalCells = Math.ceil((startOffset + lastDate) / 7) * 7;
+
+      for (let cell = 0; cell < totalCells; cell += 1) {
+        const dayNumber = cell - startOffset + 1;
+        const dayEl = document.createElement("div");
+        dayEl.className = "day";
+        if (dayNumber < 1 || dayNumber > lastDate) {
+          dayEl.classList.add("empty");
+        } else {
+          const iso = toIso(new Date(Date.UTC(year, monthIndex, dayNumber)));
+          const stay = getStayForDate(option, iso);
+          const dayNum = document.createElement("span");
+          dayNum.className = "day-num";
+          dayNum.textContent = String(dayNumber);
+          dayEl.append(dayNum);
+          if (stay) {
+            const event = document.createElement("div");
+            event.className = "day-event";
+            event.dataset.color = stay.name;
+            const action = iso === stay.arrive ? "Arrive" : iso === addDays(stay.depart, -1) ? "Last night" : "Stay";
+            event.innerHTML = `<strong>${stay.name}</strong><span>${action} - ${stay.nights}n base</span>`;
+            dayEl.append(event);
+          }
+          const bounds = getOptionBounds(option);
+          if (iso === bounds.finish) {
+            const event = document.createElement("div");
+            event.className = "day-event";
+            event.style.background = "#f4f5f1";
+            event.innerHTML = "<strong>Return Perth</strong><span>Home day</span>";
+            dayEl.append(event);
+          }
+        }
+        days.append(dayEl);
+      }
+      month.append(days);
+      return month;
+    }
+
+    function getStayForDate(option, iso) {
+      return option.stops.find((item) => iso >= item.arrive && iso < item.depart);
+    }
+
+    function renderLegend(option) {
+      const legend = document.getElementById("legend");
+      legend.innerHTML = "";
+      option.stops.forEach((item) => {
+        const row = document.createElement("span");
+        row.className = "legend-item";
+        row.innerHTML = `<span class="swatch" style="background:${LOCATIONS[item.name].color}"></span>${item.name}`;
+        legend.append(row);
+      });
+    }
+
+    function renderTable(option) {
+      const body = document.getElementById("stopTableBody");
+      body.innerHTML = "";
+      option.stops.forEach((item) => {
+        const arrive = formatDateTwoLine(item.arrive);
+        const depart = formatDateTwoLine(item.depart);
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>
+            <div class="stop-cell">
+              <span class="stop-dot" style="background:${LOCATIONS[item.name].color}"></span>
+              <strong>${item.name}</strong>
+            </div>
+          </td>
+          <td><div class="date-cell"><strong>${arrive.top}</strong><span>${arrive.year}</span></div></td>
+          <td><div class="date-cell"><strong>${depart.top}</strong><span>${depart.year}</span></div></td>
+          <td class="nights-cell">${item.nights}</td>
+          <td><div class="write-lines"><span class="write-line"></span><span class="write-line"></span></div></td>
+          <td>${item.note}</td>
+        `;
+        body.append(row);
+      });
+    }
+
+    function renderNotes(option) {
+      const notes = document.getElementById("optionNotes");
+      notes.innerHTML = "";
+      option.notes.forEach((text) => {
+        const item = document.createElement("li");
+        item.textContent = text;
+        notes.append(item);
+      });
+    }
+
+    function renderAccommodation(option) {
+      const grid = document.getElementById("accomGrid");
+      grid.innerHTML = "";
+      option.stops.forEach((stopItem) => {
+        const row = document.createElement("article");
+        row.className = "accom-row";
+        const options = ACCOMMODATION[stopItem.name] || [];
+        const arrive = formatDateTwoLine(stopItem.arrive);
+        const depart = formatDateTwoLine(stopItem.depart);
+        row.innerHTML = `
+          <div class="accom-stop">
+            <strong>${stopItem.name}</strong>
+            <span>${arrive.top} ${arrive.year} to ${depart.top} ${depart.year}</span>
+            <span>${stopItem.nights} nights</span>
+          </div>
+          <div class="accom-options"></div>
+        `;
+        const optionWrap = row.querySelector(".accom-options");
+        options.forEach((accom) => {
+          const item = document.createElement("div");
+          item.className = "accom-option";
+          const visitLink = accom.url
+            ? `<a class="text-link" href="${accom.url}" target="_blank" rel="noopener">Visit site</a>`
+            : "";
+          item.innerHTML = `
+            <div class="accom-option-head">
+              <div>
+                <h3>${accom.name}</h3>
+                <p>${accom.type}</p>
+              </div>
+              <span class="price-note">${accom.price}</span>
+            </div>
+            <p>${accom.note}</p>
+            <div class="accom-actions">
+              ${visitLink}
+              <a class="text-link" href="${availabilitySearchUrl(accom.name, stopItem)}" target="_blank" rel="noopener">Search dates</a>
+            </div>
+          `;
+          optionWrap.append(item);
+        });
+        grid.append(row);
+      });
+    }
+
+    function availabilitySearchUrl(name, stopItem) {
+      const query = `${name} ${stopItem.name} availability ${stopItem.arrive} to ${stopItem.depart} powered site caravan`;
+      return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+    }
+
+    function renderFuel() {
+      const option = selectedOption();
+      const bounds = getOptionBounds(option);
+      const towingConsumption = Number(document.getElementById("towingConsumptionInput").value) || 0;
+      const localConsumption = Number(document.getElementById("localConsumptionInput").value) || 0;
+      const price = Number(document.getElementById("priceInput").value) || 0;
+      const localKm = Number(document.getElementById("localKmInput").value) || 0;
+      const days = Number(document.getElementById("tripDaysInput").value) || bounds.days;
+      const accomNight = Number(document.getElementById("accomNightInput").value) || 0;
+      const parkDay = Number(document.getElementById("parkDayInput").value) || 0;
+      const parkFeeDays = Number(document.getElementById("parkFeeDaysInput").value) || 0;
+      const localTotalKm = localKm * days;
+      const towingLitres = option.baseLoopKm * towingConsumption / 100;
+      const localLitres = localTotalKm * localConsumption / 100;
+      const fuelCost = (towingLitres + localLitres) * price;
+      const accomCost = bounds.nights * accomNight;
+      const parkCost = parkFeeDays * parkDay;
+      const totalCost = fuelCost + accomCost + parkCost;
+      document.getElementById("baseKmOut").textContent = `${option.baseLoopKm.toLocaleString("en-AU")} km`;
+      document.getElementById("localKmOut").textContent = `${Math.round(localTotalKm).toLocaleString("en-AU")} km`;
+      document.getElementById("towingLitresOut").textContent = `${Math.round(towingLitres).toLocaleString("en-AU")} L`;
+      document.getElementById("localLitresOut").textContent = `${Math.round(localLitres).toLocaleString("en-AU")} L`;
+      document.getElementById("fuelCostOut").textContent = formatAud(fuelCost);
+      document.getElementById("accomCostOut").textContent = `${formatAud(accomCost)} (${bounds.nights} nights)`;
+      document.getElementById("parkCostOut").textContent = `${formatAud(parkCost)} (${parkFeeDays} days)`;
+      document.getElementById("totalCostOut").textContent = formatAud(totalCost);
+
+      const status = document.getElementById("returnStatus");
+      const ok = bounds.finish <= REQUIRED_RETURN;
+      status.className = ok ? "status-ok" : "status-ok status-warn";
+      status.textContent = ok
+        ? `Return check: ${formatDate(bounds.finish)} is on or before Mon 25 Jan 2027.`
+        : `Return check: ${formatDate(bounds.finish)} is after Mon 25 Jan 2027.`;
+    }
+
+    function formatAud(value) {
+      return value.toLocaleString("en-AU", {
+        style: "currency",
+        currency: "AUD",
+        maximumFractionDigits: 0
+      });
+    }
+
+    function downloadIcs() {
+      const key = document.getElementById("optionSelect").value;
+      const option = OPTIONS[key];
+      const lines = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "PRODID:-//Codex//SW WA Road Trip Planner//EN",
+        "CALSCALE:GREGORIAN",
+        "METHOD:PUBLISH"
+      ];
+      option.stops.forEach((item, index) => {
+        lines.push(
+          "BEGIN:VEVENT",
+          `UID:sw-wa-${key}-${index + 1}@codex.local`,
+          `DTSTAMP:${icsDateTime(new Date())}`,
+          `DTSTART;VALUE=DATE:${icsDate(item.arrive)}`,
+          `DTEND;VALUE=DATE:${icsDate(item.depart)}`,
+          `SUMMARY:${escapeIcs(`SW WA: ${item.name} (${item.nights} nights)`)}`,
+          `LOCATION:${escapeIcs(item.name)}`,
+          `DESCRIPTION:${escapeIcs(item.note)}`,
+          "END:VEVENT"
+        );
+      });
+      lines.push("END:VCALENDAR");
+      const blob = new Blob([lines.join("\r\n")], { type: "text/calendar;charset=utf-8" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `sw-wa-roadtrip-${key}.ics`;
+      document.body.append(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(link.href);
+    }
+
+    function icsDate(iso) {
+      return iso.replaceAll("-", "");
+    }
+
+    function icsDateTime(date) {
+      return date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+    }
+
+    function escapeIcs(text) {
+      return text
+        .replaceAll("\\", "\\\\")
+        .replaceAll(";", "\\;")
+        .replaceAll(",", "\\,")
+        .replaceAll("\n", "\\n");
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
