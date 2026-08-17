@@ -673,6 +673,11 @@
       padding: 0.6rem;
     }
 
+    .accom-option.booked {
+      border: 2px solid #2f7d4f;
+      background: #f3faf5;
+    }
+
     .accom-option-head {
       align-items: start;
       display: flex;
@@ -1354,6 +1359,39 @@
         </aside>
       </section>
 
+      <section class="panel" aria-labelledby="bookingsTitle">
+        <div class="panel-header">
+          <h2 id="bookingsTitle">Bookings &amp; Payments</h2>
+          <span class="pill" id="bookingsPill"></span>
+        </div>
+        <div class="panel-body table-wrap">
+          <table>
+            <colgroup>
+              <col style="width: 15%;">
+              <col style="width: 27%;">
+              <col style="width: 8%;">
+              <col style="width: 12%;">
+              <col style="width: 12%;">
+              <col style="width: 12%;">
+              <col style="width: 14%;">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Stop</th>
+                <th>Park</th>
+                <th>Nights</th>
+                <th>Total</th>
+                <th>Paid</th>
+                <th>Balance</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="bookingsBody"></tbody>
+            <tfoot id="bookingsFoot"></tfoot>
+          </table>
+        </div>
+      </section>
+
       <section class="grid-two">
         <article class="panel calendar-panel" aria-labelledby="calendarTitle">
           <div class="panel-header">
@@ -1545,7 +1583,10 @@
       "Newdegate": { lat: -33.0940, lon: 118.8350 },
       "Kondinin": { lat: -32.4940, lon: 118.2640 },
       "Corrigin": { lat: -32.3330, lon: 117.8750 },
-      "Brookton": { lat: -32.3680, lon: 117.0100 }
+      "Brookton": { lat: -32.3680, lon: 117.0100 },
+      "Mount Barker": { lat: -34.6300, lon: 117.6660 },
+      "Kojonup": { lat: -33.8300, lon: 117.1600 },
+      "Williams": { lat: -33.0200, lon: 116.8900 }
     };
 
     const ROUTE_SEGMENTS = {
@@ -1564,7 +1605,12 @@
       "Esperance>Cape Le Grand": ["Esperance", "Merivale", "Cape Le Grand"],
       "Cape Le Grand>Hyden": ["Cape Le Grand", "Esperance", "Munglinup", "Ravensthorpe", "Lake King", "Newdegate", "Hyden"],
       "Esperance>Hyden": ["Esperance", "Munglinup", "Ravensthorpe", "Lake King", "Newdegate", "Hyden"],
-      "Hyden>Perth": ["Hyden", "Kondinin", "Corrigin", "Brookton", "Perth"]
+      "Hyden>Perth": ["Hyden", "Kondinin", "Corrigin", "Brookton", "Perth"],
+      "Perth>Hyden": ["Perth", "Brookton", "Corrigin", "Kondinin", "Hyden"],
+      "Hyden>Esperance": ["Hyden", "Newdegate", "Lake King", "Ravensthorpe", "Munglinup", "Esperance"],
+      "Esperance>Bremer Bay": ["Esperance", "Munglinup", "Ravensthorpe", "Jerramungup", "Bremer Bay"],
+      "Bremer Bay>Denmark": ["Bremer Bay", "Jerramungup", "Borden", "Porongurup", "Albany", "Denmark"],
+      "Denmark>Perth": ["Denmark", "Mount Barker", "Kojonup", "Williams", "Perth"]
     };
 
     const TRAVEL_TIMES = {
@@ -1583,7 +1629,12 @@
       "Esperance>Cape Le Grand": 1,
       "Cape Le Grand>Hyden": 5.5,
       "Esperance>Hyden": 4.5,
-      "Hyden>Perth": 4
+      "Hyden>Perth": 4,
+      "Perth>Hyden": 4,
+      "Hyden>Esperance": 4.5,
+      "Esperance>Bremer Bay": 4,
+      "Bremer Bay>Denmark": 2.5,
+      "Denmark>Perth": 4.5
     };
 
     const TIME_LABEL_OFFSETS = {
@@ -1808,7 +1859,31 @@
       ]
     };
 
+    const BOOKINGS = {
+      "Esperance": { park: "RAC Esperance Holiday Park", site: "Ensuite powered site", total: 658, paid: 94, status: "Deposit paid" },
+      "Bremer Bay": { park: "Bremer Bay Caravan Park", site: "Powered site", total: 260, paid: 65, status: "Deposit paid" },
+      "Denmark": { park: "BIG4 Denmark Ocean Beach Holiday Park", site: "Powered site", total: 341, paid: 341, status: "Paid in full" }
+    };
+
     const OPTIONS = {
+      primary: {
+        label: "Primary - Reversed loop via Hyden, 16 nights (2-18 Dec)",
+        title: "Primary: Reversed Loop, Esperance Anchored",
+        description: "Perth to Hyden, Esperance, Bremer Bay, Denmark and home. Anchored on Esperance 3-10 Dec.",
+        baseLoopKm: 1750,
+        notes: [
+          "Runs the loop east-first so Esperance (the priority) locks in first at 3-10 Dec.",
+          "Whole trip sits before/around WA school holidays (~18 Dec): depart Perth Wed 2 Dec, home Fri 18 Dec.",
+          "Cape Le Grand and Lucky Bay are day-tripped from the Esperance base rather than towing in.",
+          "Denmark (13-18 Dec) is the tightest to book as it brushes the start of school holidays - confirm early."
+        ],
+        stops: [
+          stop("Hyden", "2026-12-02", 1, "Overnight Wave Rock break on the drive east."),
+          stop("Esperance", "2026-12-03", 7, "Anchor stay - RAC ensuite site available. Base for Cape Le Grand / Lucky Bay day trips."),
+          stop("Bremer Bay", "2026-12-10", 3, "Beaches and Fitzgerald River NP access; check Bremer Bay Beaches (live online) first."),
+          stop("Denmark", "2026-12-13", 5, "Greens Pool, Elephant Rocks, forest and food. Tightest booking - confirm early.")
+        ]
+      },
       option1: {
         label: "Option 1 - Early December, 35 nights",
         title: "Option 1: Early December Start",
@@ -1963,7 +2038,7 @@
         optionEl.textContent = option.label;
         select.append(optionEl);
       });
-      select.value = "option1";
+      select.value = "primary";
       select.addEventListener("change", renderAll);
       document.getElementById("printButton").addEventListener("click", () => window.print());
       document.getElementById("icsButton").addEventListener("click", downloadIcs);
@@ -1993,6 +2068,7 @@
       renderTable(option);
       renderNotes(option);
       renderAccommodation(option);
+      renderBookings(option);
       renderFuel();
     }
 
@@ -2813,6 +2889,10 @@
       option.stops.forEach((item) => {
         const arrive = formatDateTwoLine(item.arrive);
         const depart = formatDateTwoLine(item.depart);
+        const booking = BOOKINGS[item.name];
+        const choiceCell = booking
+          ? `<strong>${booking.park}</strong><div style="color:var(--muted);font-size:0.78rem;font-weight:700;margin-top:0.15rem;">${booking.status} &middot; ${formatAud(booking.paid)} of ${formatAud(booking.total)}</div>`
+          : `<div class="write-lines"><span class="write-line"></span><span class="write-line"></span></div>`;
         const row = document.createElement("tr");
         row.innerHTML = `
           <td>
@@ -2824,7 +2904,7 @@
           <td><div class="date-cell"><strong>${arrive.top}</strong><span>${arrive.year}</span></div></td>
           <td><div class="date-cell"><strong>${depart.top}</strong><span>${depart.year}</span></div></td>
           <td class="nights-cell">${item.nights}</td>
-          <td><div class="write-lines"><span class="write-line"></span><span class="write-line"></span></div></td>
+          <td>${choiceCell}</td>
           <td>${item.note}</td>
         `;
         body.append(row);
@@ -2858,10 +2938,15 @@
           </div>
           <div class="accom-options"></div>
         `;
+        const booking = BOOKINGS[stopItem.name];
         const optionWrap = row.querySelector(".accom-options");
         options.forEach((accom) => {
           const item = document.createElement("div");
-          item.className = "accom-option";
+          const isBooked = booking && accom.name === booking.park;
+          item.className = isBooked ? "accom-option booked" : "accom-option";
+          const bookedBanner = isBooked
+            ? `<div class="status-ok" style="margin:0;padding:0.4rem 0.55rem;">&#10003; Booked &mdash; ${booking.status} (${formatAud(booking.paid)} of ${formatAud(booking.total)} paid)</div>`
+            : "";
           const visitLink = accom.url
             ? `<a class="text-link" href="${accom.url}" target="_blank" rel="noopener">Visit site</a>`
             : "";
@@ -2873,6 +2958,7 @@
               </div>
               <span class="price-note">${accom.price}</span>
             </div>
+            ${bookedBanner}
             <p>${accom.note}</p>
             <div class="accom-actions">
               ${visitLink}
@@ -2888,6 +2974,52 @@
     function availabilitySearchUrl(name, stopItem) {
       const query = `${name} ${stopItem.name} availability ${stopItem.arrive} to ${stopItem.depart} powered site caravan`;
       return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+    }
+
+    function renderBookings(option) {
+      const body = document.getElementById("bookingsBody");
+      const foot = document.getElementById("bookingsFoot");
+      body.innerHTML = "";
+      foot.innerHTML = "";
+      let totalSum = 0;
+      let paidSum = 0;
+      option.stops.forEach((item) => {
+        const booking = BOOKINGS[item.name];
+        const dot = `<span class="stop-dot" style="background:${LOCATIONS[item.name].color}"></span>`;
+        const row = document.createElement("tr");
+        if (booking) {
+          const balance = booking.total - booking.paid;
+          totalSum += booking.total;
+          paidSum += booking.paid;
+          row.innerHTML = `
+            <td><div class="stop-cell">${dot}<strong>${item.name}</strong></div></td>
+            <td><strong>${booking.park}</strong><div style="color:var(--muted);font-size:0.8rem;font-weight:700;">${booking.site}</div></td>
+            <td class="nights-cell">${item.nights}</td>
+            <td>${formatAud(booking.total)}</td>
+            <td>${formatAud(booking.paid)}</td>
+            <td><strong>${formatAud(balance)}</strong></td>
+            <td><span class="price-note">${booking.status}</span></td>
+          `;
+        } else {
+          row.innerHTML = `
+            <td><div class="stop-cell">${dot}<strong>${item.name}</strong></div></td>
+            <td colspan="5" style="color:var(--muted);font-weight:700;">Not booked yet</td>
+            <td><span class="price-note status-warn" style="border:1px solid #e2c58d;">To book</span></td>
+          `;
+        }
+        body.append(row);
+      });
+      const balanceSum = totalSum - paidSum;
+      foot.innerHTML = `
+        <tr>
+          <th colspan="3" style="text-align:right;">Booked totals</th>
+          <td><strong>${formatAud(totalSum)}</strong></td>
+          <td><strong>${formatAud(paidSum)}</strong></td>
+          <td><strong>${formatAud(balanceSum)}</strong></td>
+          <td></td>
+        </tr>
+      `;
+      document.getElementById("bookingsPill").textContent = `${formatAud(paidSum)} paid / ${formatAud(balanceSum)} owing`;
     }
 
     function renderFuel() {
