@@ -402,8 +402,8 @@
     .route-row {
       align-items: center;
       display: grid;
-      gap: 0.45rem;
-      grid-template-columns: 1.6rem 1fr auto;
+      gap: 0.6rem;
+      grid-template-columns: 1.6rem 1fr;
     }
 
     .route-index {
@@ -420,9 +420,18 @@
     }
 
     .route-name {
-      font-size: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      font-size: 0.95rem;
       font-weight: 700;
+      gap: 0.1rem;
       min-width: 0;
+    }
+
+    .route-leg {
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 700;
     }
 
     .route-nights {
@@ -1080,12 +1089,7 @@
       }
 
       .route-row {
-        grid-template-columns: 1.45rem minmax(0, 1fr) auto;
-      }
-
-      .route-name,
-      .route-nights {
-        font-size: 0.82rem;
+        grid-template-columns: 1.45rem minmax(0, 1fr);
       }
 
       .day {
@@ -1167,6 +1171,54 @@
     }
 
     @media (max-width: 620px) {
+      .summary-band,
+      .panel,
+      .cost-details {
+        box-shadow: 0 3px 12px rgba(24, 36, 40, 0.06);
+      }
+
+      .metric-grid {
+        gap: 0;
+        grid-template-columns: 1fr;
+      }
+
+      .metric {
+        align-items: baseline;
+        border-bottom: 1px solid var(--line);
+        border-left: 0;
+        display: flex;
+        gap: 1rem;
+        justify-content: space-between;
+        padding: 0.55rem 0.15rem;
+      }
+
+      .metric:last-child {
+        border-bottom: 0;
+      }
+
+      .metric strong {
+        font-size: 1rem;
+      }
+
+      .metric span {
+        margin-top: 0;
+      }
+
+      .schematic-label,
+      .schematic-key,
+      .map-wrap,
+      .map-caption {
+        display: none;
+      }
+
+      .route-list {
+        margin-top: 0;
+      }
+
+      .google-route-box {
+        margin-top: 0.85rem;
+      }
+
       .data-table {
         min-width: 0;
       }
@@ -1469,7 +1521,7 @@
           </div>
           <div class="panel-body notes-grid">
             <div>
-              <h3 style="font-size:0.95rem;margin-bottom:0.5rem;">Option notes</h3>
+              <h3 style="font-size:0.95rem;margin-bottom:0.5rem;">Trip notes</h3>
               <ul class="option-notes" id="optionNotes"></ul>
             </div>
             <div>
@@ -2736,12 +2788,14 @@
       const list = document.getElementById("routeList");
       list.innerHTML = "";
       option.stops.forEach((item, index) => {
+        const from = index === 0 ? "Perth" : option.stops[index - 1].name;
+        const hours = TRAVEL_TIMES[`${from}>${item.name}`];
+        const drive = hours ? `${travelTimeText(hours)} drive from ${from} · ` : "";
         const row = document.createElement("div");
         row.className = "route-row";
         row.innerHTML = `
           <span class="route-index" style="background:${LOCATIONS[item.name].color}">${index + 1}</span>
-          <span class="route-name">${item.name}</span>
-          <span class="route-nights">${item.nights} nights</span>
+          <span class="route-name">${item.name}<small class="route-leg">${drive}${item.nights} nights</small></span>
         `;
         list.append(row);
       });
