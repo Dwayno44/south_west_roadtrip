@@ -471,7 +471,37 @@
     .months {
       display: grid;
       gap: 1rem;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: 1fr;
+    }
+
+    .cost-details {
+      padding: 0;
+    }
+
+    .cost-details > summary {
+      align-items: baseline;
+      cursor: pointer;
+      display: flex;
+      flex-wrap: wrap;
+      font-size: 1rem;
+      font-weight: 800;
+      gap: 0.5rem;
+      list-style: none;
+      padding: 0.9rem 1rem;
+    }
+
+    .cost-details > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .cost-details[open] > summary {
+      border-bottom: 1px solid var(--line);
+    }
+
+    .summary-hint {
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 700;
     }
 
     .month {
@@ -1320,15 +1350,11 @@
     <div class="header-inner">
       <div class="brand">
         <h1>South West WA Road Trip Planner</h1>
-        <div class="subtitle">Perth to Margaret River, Denmark, Albany, Bremer Bay, Esperance, Hyden, and home.</div>
+        <div class="subtitle">Perth to Esperance, Bremer Bay and Denmark &mdash; 8 to 22 December 2026.</div>
       </div>
       <div class="toolbar" aria-label="Planner controls">
-        <label class="field" for="optionSelect">
-          <span>Itinerary</span>
-          <select id="optionSelect"></select>
-        </label>
         <button id="printButton" type="button" title="Print or save as PDF">Print / PDF</button>
-        <button id="icsButton" type="button" class="secondary" title="Download iCal for selected itinerary">Download iCal</button>
+        <button id="icsButton" type="button" class="secondary" title="Download iCal for the trip">Download iCal</button>
       </div>
     </div>
   </header>
@@ -1343,7 +1369,7 @@
         <div class="metric-grid" id="metricGrid"></div>
       </section>
 
-      <section class="overview">
+      <section>
         <article class="panel map-panel" aria-labelledby="mapTitle">
           <div class="panel-header">
             <h2 id="mapTitle">Route Map</h2>
@@ -1389,60 +1415,6 @@
             </div>
           </div>
         </article>
-
-        <aside class="panel" aria-labelledby="calcTitle">
-          <div class="panel-header">
-            <h2 id="calcTitle">Trip Cost</h2>
-            <span class="pill">Editable</span>
-          </div>
-          <div class="panel-body calculator">
-            <div class="calc-fields">
-              <label class="field">
-                <span>Towing L/100</span>
-                <input id="towingConsumptionInput" type="number" min="1" step="0.1" value="16">
-              </label>
-              <label class="field">
-                <span>Local L/100</span>
-                <input id="localConsumptionInput" type="number" min="1" step="0.1" value="9">
-              </label>
-              <label class="field">
-                <span>Fuel $/L</span>
-                <input id="priceInput" type="number" min="0" step="0.01" value="2.10">
-              </label>
-              <label class="field">
-                <span>Local km/day</span>
-                <input id="localKmInput" type="number" min="0" step="1" value="60">
-              </label>
-              <label class="field">
-                <span>Trip days</span>
-                <input id="tripDaysInput" type="number" min="1" step="1">
-              </label>
-              <label class="field">
-                <span>Accom/park $/night</span>
-                <input id="accomNightInput" type="number" min="0" step="1" value="65">
-              </label>
-              <label class="field">
-                <span>Park fees $/day</span>
-                <input id="parkDayInput" type="number" min="0" step="1" value="0">
-              </label>
-              <label class="field">
-                <span>Park fee days</span>
-                <input id="parkFeeDaysInput" type="number" min="0" step="1">
-              </label>
-            </div>
-            <div class="calc-output">
-              <div class="calc-row"><span>Base towing loop</span><strong id="baseKmOut"></strong></div>
-              <div class="calc-row"><span>Local driving</span><strong id="localKmOut"></strong></div>
-              <div class="calc-row"><span>Towing fuel</span><strong id="towingLitresOut"></strong></div>
-              <div class="calc-row"><span>Local fuel</span><strong id="localLitresOut"></strong></div>
-              <div class="calc-row"><span>Fuel cost</span><strong id="fuelCostOut"></strong></div>
-              <div class="calc-row"><span>Accom/park nights</span><strong id="accomCostOut"></strong></div>
-              <div class="calc-row"><span>Daily park fees</span><strong id="parkCostOut"></strong></div>
-              <div class="calc-row"><span>Estimated trip total</span><strong id="totalCostOut"></strong></div>
-            </div>
-            <div id="returnStatus" class="status-ok"></div>
-          </div>
-        </aside>
       </section>
 
       <section class="panel" aria-labelledby="bookingsTitle">
@@ -1482,7 +1454,7 @@
         <article class="panel calendar-panel" aria-labelledby="calendarTitle">
           <div class="panel-header">
             <h2 id="calendarTitle">Calendar View</h2>
-            <span class="pill">Dec 2026 / Jan 2027</span>
+            <span class="pill">December 2026</span>
           </div>
           <div class="panel-body">
             <div class="months" id="calendarMonths"></div>
@@ -1506,17 +1478,6 @@
             </div>
           </div>
         </article>
-      </section>
-
-      <section class="panel" aria-labelledby="accomTitle">
-        <div class="panel-header">
-          <h2 id="accomTitle">Suggested Accommodation</h2>
-          <span class="pill" id="accomPill"></span>
-        </div>
-        <div class="panel-body">
-          <p class="map-caption" style="margin-top:0;margin-bottom:0.8rem;">Suggested options are caravan/pop-top friendly where possible. Pricing is indicative only where published; use the direct and date-search links to confirm exact availability before booking.</p>
-          <div class="accom-grid" id="accomGrid"></div>
-        </div>
       </section>
 
       <section class="panel" aria-labelledby="tableTitle">
@@ -1548,6 +1509,57 @@
           </table>
         </div>
       </section>
+
+      <details class="panel cost-details">
+        <summary>Fuel &amp; cost estimator <span class="summary-hint">optional &middot; tap to open</span></summary>
+        <div class="panel-body calculator">
+          <div class="calc-fields">
+            <label class="field">
+              <span>Towing L/100</span>
+              <input id="towingConsumptionInput" type="number" min="1" step="0.1" value="16">
+            </label>
+            <label class="field">
+              <span>Local L/100</span>
+              <input id="localConsumptionInput" type="number" min="1" step="0.1" value="9">
+            </label>
+            <label class="field">
+              <span>Fuel $/L</span>
+              <input id="priceInput" type="number" min="0" step="0.01" value="2.10">
+            </label>
+            <label class="field">
+              <span>Local km/day</span>
+              <input id="localKmInput" type="number" min="0" step="1" value="60">
+            </label>
+            <label class="field">
+              <span>Trip days</span>
+              <input id="tripDaysInput" type="number" min="1" step="1">
+            </label>
+            <label class="field">
+              <span>Accom/park $/night</span>
+              <input id="accomNightInput" type="number" min="0" step="1" value="65">
+            </label>
+            <label class="field">
+              <span>Park fees $/day</span>
+              <input id="parkDayInput" type="number" min="0" step="1" value="0">
+            </label>
+            <label class="field">
+              <span>Park fee days</span>
+              <input id="parkFeeDaysInput" type="number" min="0" step="1">
+            </label>
+          </div>
+          <div class="calc-output">
+            <div class="calc-row"><span>Base towing loop</span><strong id="baseKmOut"></strong></div>
+            <div class="calc-row"><span>Local driving</span><strong id="localKmOut"></strong></div>
+            <div class="calc-row"><span>Towing fuel</span><strong id="towingLitresOut"></strong></div>
+            <div class="calc-row"><span>Local fuel</span><strong id="localLitresOut"></strong></div>
+            <div class="calc-row"><span>Fuel cost</span><strong id="fuelCostOut"></strong></div>
+            <div class="calc-row"><span>Accom/park nights</span><strong id="accomCostOut"></strong></div>
+            <div class="calc-row"><span>Daily park fees</span><strong id="parkCostOut"></strong></div>
+            <div class="calc-row"><span>Estimated trip total</span><strong id="totalCostOut"></strong></div>
+          </div>
+          <div id="returnStatus" class="status-ok"></div>
+        </div>
+      </details>
     </div>
   </main>
 
@@ -1696,7 +1708,8 @@
       "Hyden>Esperance": ["Hyden", "Newdegate", "Lake King", "Ravensthorpe", "Munglinup", "Esperance"],
       "Esperance>Bremer Bay": ["Esperance", "Munglinup", "Ravensthorpe", "Jerramungup", "Bremer Bay"],
       "Bremer Bay>Denmark": ["Bremer Bay", "Jerramungup", "Borden", "Porongurup", "Albany", "Denmark"],
-      "Denmark>Perth": ["Denmark", "Mount Barker", "Kojonup", "Williams", "Perth"]
+      "Denmark>Perth": ["Denmark", "Mount Barker", "Kojonup", "Williams", "Perth"],
+      "Perth>Esperance": ["Perth", "Brookton", "Corrigin", "Kondinin", "Hyden", "Newdegate", "Lake King", "Ravensthorpe", "Munglinup", "Esperance"]
     };
 
     const TRAVEL_TIMES = {
@@ -1720,7 +1733,8 @@
       "Hyden>Esperance": 4.5,
       "Esperance>Bremer Bay": 4,
       "Bremer Bay>Denmark": 2.5,
-      "Denmark>Perth": 4.5
+      "Denmark>Perth": 4.5,
+      "Perth>Esperance": 8.5
     };
 
     const TIME_LABEL_OFFSETS = {
@@ -1952,96 +1966,21 @@
     };
 
     const OPTIONS = {
-      primary: {
-        label: "Primary - Reversed loop via Hyden, 15 nights (7-22 Dec)",
-        title: "Primary: Reversed Loop, Esperance Anchored",
-        description: "Perth to Hyden, Esperance, Bremer Bay, Denmark and home. Anchored on Esperance 8-14 Dec.",
-        baseLoopKm: 1750,
+      trip: {
+        label: "Confirmed trip",
+        title: "South West WA Road Trip",
+        description: "Perth to Esperance, Bremer Bay and Denmark, then home.",
+        baseLoopKm: 1730,
         notes: [
-          "Runs the loop east-first so Esperance (the priority) locks in first at 8-14 Dec.",
-          "Depart Perth Mon 7 Dec, home Tue 22 Dec - back before Christmas.",
+          "Depart Perth Tue 8 Dec, home Tue 22 Dec - back before Christmas.",
+          "Drive straight to Esperance on the 8th (Wave Rock lunch stop en route), keeping Tilly's birthday on the 7th at home.",
           "Cape Le Grand and Lucky Bay are day-tripped from the Esperance base rather than towing in.",
-          "Esperance, Bremer Bay and Denmark all booked; Hyden (1 night) still to book."
+          "All three stops booked; Denmark paid in full."
         ],
         stops: [
-          stop("Hyden", "2026-12-07", 1, "UNCONFIRMED - may skip the overnight and drive Perth to Esperance direct on 8 Dec (Wave Rock lunch stop), keeping Tilly's birthday (7 Dec) at home."),
-          stop("Esperance", "2026-12-08", 6, "Anchor stay - RAC powered site booked. Base for Cape Le Grand / Lucky Bay day trips."),
+          stop("Esperance", "2026-12-08", 6, "Anchor stay - RAC powered site booked. Base for Cape Le Grand / Lucky Bay day trips. Arrive via a Wave Rock lunch stop."),
           stop("Bremer Bay", "2026-12-14", 3, "Beaches and Fitzgerald River NP access; Bremer Bay Caravan Park booked."),
           stop("Denmark", "2026-12-17", 5, "Greens Pool, Elephant Rocks, forest and food; BIG4 Ocean Beach booked (paid in full).")
-        ]
-      },
-      option1: {
-        label: "Option 1 - Early December, 35 nights",
-        title: "Option 1: Early December Start",
-        description: "A 35-night loop with longer bases and a Jan 9 return.",
-        baseLoopKm: BASE_LOOP_KM,
-        notes: [
-          "Strong balance of base length and school-holiday timing.",
-          "Adds a Denmark pause between Peaceful Bay and Albany.",
-          "Cape Le Grand is shown as a separate camping base for the Lucky Bay side trip.",
-          "Return is well before the Jan 25 latest-return requirement."
-        ],
-        stops: [
-          stop("Gracetown", "2026-12-05", 3, "Beach reset and Cowaramup access."),
-          stop("Margaret River", "2026-12-08", 4, "Main winery, caves, and food base."),
-          stop("Hamelin Bay", "2026-12-12", 3, "Coast, stingrays, Augusta day trip."),
-          stop("Peaceful Bay", "2026-12-15", 2, "Friend holiday house option."),
-          stop("Denmark", "2026-12-17", 4, "Greens Pool, Elephant Rocks, forest and food stop."),
-          stop("Albany", "2026-12-21", 4, "Torndirrup, Middleton Beach, museums."),
-          stop("Bremer Bay", "2026-12-25", 3, "Beaches and whale-watching season."),
-          stop("Hopetoun", "2026-12-28", 2, "Fitzgerald River access."),
-          stop("Esperance", "2026-12-30", 5, "Town services and coast drives."),
-          stop("Cape Le Grand", "2027-01-04", 4, "Lucky Bay camp/beach stay if towing works."),
-          stop("Hyden", "2027-01-08", 1, "One-night Wave Rock break home.")
-        ]
-      },
-      option2: {
-        label: "Option 2 - Original duration, return Jan 24",
-        title: "Option 2: Original Duration",
-        description: "A 35-night loop starting Dec 20 and returning Sun 24 Jan 2027.",
-        baseLoopKm: BASE_LOOP_KM,
-        notes: [
-          "Original-duration version while still returning before Mon 25 Jan 2027.",
-          "Adds a Denmark pause between Peaceful Bay and Albany.",
-          "Uses the same night pattern as Option 1, shifted later into January.",
-          "Useful if bookings allow a slower holiday-period pace."
-        ],
-        stops: [
-          stop("Gracetown", "2026-12-20", 3, "Beach reset and Cowaramup access."),
-          stop("Margaret River", "2026-12-23", 4, "Main winery, caves, and food base."),
-          stop("Hamelin Bay", "2026-12-27", 3, "Coast, stingrays, Augusta day trip."),
-          stop("Peaceful Bay", "2026-12-30", 2, "Friend holiday house option."),
-          stop("Denmark", "2027-01-01", 4, "Greens Pool, Elephant Rocks, forest and food stop."),
-          stop("Albany", "2027-01-05", 4, "Torndirrup, Middleton Beach, museums."),
-          stop("Bremer Bay", "2027-01-09", 3, "Beaches and whale-watching season."),
-          stop("Hopetoun", "2027-01-12", 2, "Fitzgerald River access."),
-          stop("Esperance", "2027-01-14", 5, "Town services and coast drives."),
-          stop("Cape Le Grand", "2027-01-19", 4, "Lucky Bay camp/beach stay if towing works."),
-          stop("Hyden", "2027-01-23", 1, "One-night Wave Rock break home.")
-        ]
-      },
-      option3: {
-        label: "Option 3 - Early January, 23 nights",
-        title: "Option 3: Compressed January Window",
-        description: "A 23-night loop returning Mon 25 Jan 2027.",
-        baseLoopKm: BASE_LOOP_KM,
-        notes: [
-          "Compressed version that still reaches the required towns.",
-          "Includes Peaceful Bay and makes Denmark the longer southern coast pause.",
-          "Albany and Hopetoun become short transit bases to fit the compressed window.",
-          "Return is exactly one week before WA Term 1 begins."
-        ],
-        stops: [
-          stop("Gracetown", "2027-01-02", 2, "Beach reset and Cowaramup access."),
-          stop("Margaret River", "2027-01-04", 3, "Main winery, caves, and food base."),
-          stop("Hamelin Bay", "2027-01-07", 2, "Coast, stingrays, Augusta day trip."),
-          stop("Peaceful Bay", "2027-01-09", 2, "Friend holiday house option."),
-          stop("Denmark", "2027-01-11", 4, "Greens Pool, Elephant Rocks, forest and food stop."),
-          stop("Albany", "2027-01-15", 1, "Torndirrup, Middleton Beach, museums."),
-          stop("Bremer Bay", "2027-01-16", 3, "Beaches and whale-watching season."),
-          stop("Hopetoun", "2027-01-19", 1, "Fitzgerald River access."),
-          stop("Esperance", "2027-01-20", 4, "Town services and coast drives."),
-          stop("Hyden", "2027-01-24", 1, "One-night Wave Rock break home.")
         ]
       }
     };
@@ -2113,19 +2052,10 @@
     }
 
     function selectedOption() {
-      return OPTIONS[document.getElementById("optionSelect").value];
+      return OPTIONS.trip;
     }
 
     function init() {
-      const select = document.getElementById("optionSelect");
-      Object.entries(OPTIONS).forEach(([key, option]) => {
-        const optionEl = document.createElement("option");
-        optionEl.value = key;
-        optionEl.textContent = option.label;
-        select.append(optionEl);
-      });
-      select.value = "primary";
-      select.addEventListener("change", renderAll);
       document.getElementById("printButton").addEventListener("click", () => window.print());
       document.getElementById("icsButton").addEventListener("click", downloadIcs);
       [
@@ -2153,7 +2083,6 @@
       renderCalendar(option);
       renderTable(option);
       renderNotes(option);
-      renderAccommodation(option);
       renderBookings(option);
       renderFuel();
     }
@@ -2191,7 +2120,6 @@
       document.getElementById("mapDistancePill").textContent = `${option.baseLoopKm.toLocaleString("en-AU")} km base loop`;
       document.getElementById("notesPill").textContent = `${bounds.nights} nights`;
       document.getElementById("tablePill").textContent = `${option.stops.length} overnight stops`;
-      document.getElementById("accomPill").textContent = "Availability links";
     }
 
     function project(location) {
@@ -2888,7 +2816,6 @@
       const container = document.getElementById("calendarMonths");
       container.innerHTML = "";
       container.append(renderMonth(option, 2026, 11));
-      container.append(renderMonth(option, 2027, 0));
       renderLegend(option);
     }
 
@@ -3007,61 +2934,6 @@
       });
     }
 
-    function renderAccommodation(option) {
-      const grid = document.getElementById("accomGrid");
-      grid.innerHTML = "";
-      option.stops.forEach((stopItem) => {
-        const row = document.createElement("article");
-        row.className = "accom-row";
-        const options = ACCOMMODATION[stopItem.name] || [];
-        const arrive = formatDateTwoLine(stopItem.arrive);
-        const depart = formatDateTwoLine(stopItem.depart);
-        row.innerHTML = `
-          <div class="accom-stop">
-            <strong>${stopItem.name}</strong>
-            <span>${arrive.top} ${arrive.year} to ${depart.top} ${depart.year}</span>
-            <span>${stopItem.nights} nights</span>
-          </div>
-          <div class="accom-options"></div>
-        `;
-        const booking = BOOKINGS[stopItem.name];
-        const optionWrap = row.querySelector(".accom-options");
-        options.forEach((accom) => {
-          const item = document.createElement("div");
-          const isBooked = booking && accom.name === booking.park;
-          item.className = isBooked ? "accom-option booked" : "accom-option";
-          const bookedBanner = isBooked
-            ? `<div class="status-ok" style="margin:0;padding:0.4rem 0.55rem;">&#10003; Booked &mdash; ${booking.status} (${formatAud2(booking.paid)} of ${formatAud2(booking.total)} paid)</div>`
-            : "";
-          const visitLink = accom.url
-            ? `<a class="text-link" href="${accom.url}" target="_blank" rel="noopener">Visit site</a>`
-            : "";
-          item.innerHTML = `
-            <div class="accom-option-head">
-              <div>
-                <h3>${accom.name}</h3>
-                <p>${accom.type}</p>
-              </div>
-              <span class="price-note">${accom.price}</span>
-            </div>
-            ${bookedBanner}
-            <p>${accom.note}</p>
-            <div class="accom-actions">
-              ${visitLink}
-              <a class="text-link" href="${availabilitySearchUrl(accom.name, stopItem)}" target="_blank" rel="noopener">Search dates</a>
-            </div>
-          `;
-          optionWrap.append(item);
-        });
-        grid.append(row);
-      });
-    }
-
-    function availabilitySearchUrl(name, stopItem) {
-      const query = `${name} ${stopItem.name} availability ${stopItem.arrive} to ${stopItem.depart} powered site caravan`;
-      return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
-    }
-
     function renderBookings(option) {
       const body = document.getElementById("bookingsBody");
       const foot = document.getElementById("bookingsFoot");
@@ -3161,7 +3033,7 @@
     }
 
     function downloadIcs() {
-      const key = document.getElementById("optionSelect").value;
+      const key = "trip";
       const option = OPTIONS[key];
       const lines = [
         "BEGIN:VCALENDAR",
