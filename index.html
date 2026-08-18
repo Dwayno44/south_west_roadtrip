@@ -1946,9 +1946,9 @@
     };
 
     const BOOKINGS = {
-      "Esperance": { park: "RAC Esperance Holiday Park", site: "Powered site", total: 377, paid: 65, status: "Deposit paid" },
-      "Bremer Bay": { park: "Bremer Bay Caravan Park", site: "Powered site", total: 260, paid: 65, status: "Deposit paid" },
-      "Denmark": { park: "BIG4 Denmark Ocean Beach Holiday Park", site: "Powered site", total: 341, paid: 341, status: "Paid in full" }
+      "Esperance": { park: "RAC Esperance Holiday Park", site: "Powered site", total: 377, paid: 62.83, status: "Deposit paid" },
+      "Bremer Bay": { park: "Bremer Bay Caravan Park", site: "Powered site", total: 195, paid: 65, status: "Deposit paid" },
+      "Denmark": { park: "BIG4 Denmark Ocean Beach Holiday Park", site: "Powered site", total: 385, paid: 385, status: "Paid in full" }
     };
 
     const OPTIONS = {
@@ -1964,7 +1964,7 @@
           "Esperance, Bremer Bay and Denmark all booked; Hyden (1 night) still to book."
         ],
         stops: [
-          stop("Hyden", "2026-12-07", 1, "Overnight Wave Rock break on the drive east (still to book)."),
+          stop("Hyden", "2026-12-07", 1, "UNCONFIRMED - may skip the overnight and drive Perth to Esperance direct on 8 Dec (Wave Rock lunch stop), keeping Tilly's birthday (7 Dec) at home."),
           stop("Esperance", "2026-12-08", 6, "Anchor stay - RAC powered site booked. Base for Cape Le Grand / Lucky Bay day trips."),
           stop("Bremer Bay", "2026-12-14", 3, "Beaches and Fitzgerald River NP access; Bremer Bay Caravan Park booked."),
           stop("Denmark", "2026-12-17", 5, "Greens Pool, Elephant Rocks, forest and food; BIG4 Ocean Beach booked (paid in full).")
@@ -2977,7 +2977,7 @@
         const depart = formatDateTwoLine(item.depart);
         const booking = BOOKINGS[item.name];
         const choiceCell = booking
-          ? `<strong>${booking.park}</strong><div style="color:var(--muted);font-size:0.78rem;font-weight:700;margin-top:0.15rem;">${booking.status} &middot; ${formatAud(booking.paid)} of ${formatAud(booking.total)}</div>`
+          ? `<strong>${booking.park}</strong><div style="color:var(--muted);font-size:0.78rem;font-weight:700;margin-top:0.15rem;">${booking.status} &middot; ${formatAud2(booking.paid)} of ${formatAud2(booking.total)}</div>`
           : `<div class="write-lines"><span class="write-line"></span><span class="write-line"></span></div>`;
         const row = document.createElement("tr");
         row.innerHTML = `
@@ -3031,7 +3031,7 @@
           const isBooked = booking && accom.name === booking.park;
           item.className = isBooked ? "accom-option booked" : "accom-option";
           const bookedBanner = isBooked
-            ? `<div class="status-ok" style="margin:0;padding:0.4rem 0.55rem;">&#10003; Booked &mdash; ${booking.status} (${formatAud(booking.paid)} of ${formatAud(booking.total)} paid)</div>`
+            ? `<div class="status-ok" style="margin:0;padding:0.4rem 0.55rem;">&#10003; Booked &mdash; ${booking.status} (${formatAud2(booking.paid)} of ${formatAud2(booking.total)} paid)</div>`
             : "";
           const visitLink = accom.url
             ? `<a class="text-link" href="${accom.url}" target="_blank" rel="noopener">Visit site</a>`
@@ -3081,9 +3081,9 @@
             <td data-label="Stop"><div class="stop-cell">${dot}<strong>${item.name}</strong></div></td>
             <td data-label="Park"><strong>${booking.park}</strong><div style="color:var(--muted);font-size:0.8rem;font-weight:700;">${booking.site}</div></td>
             <td class="nights-cell" data-label="Nights">${item.nights}</td>
-            <td data-label="Total">${formatAud(booking.total)}</td>
-            <td data-label="Paid">${formatAud(booking.paid)}</td>
-            <td data-label="Balance"><strong>${formatAud(balance)}</strong></td>
+            <td data-label="Total">${formatAud2(booking.total)}</td>
+            <td data-label="Paid">${formatAud2(booking.paid)}</td>
+            <td data-label="Balance"><strong>${formatAud2(balance)}</strong></td>
             <td data-label="Status"><span class="price-note">${booking.status}</span></td>
           `;
         } else {
@@ -3099,13 +3099,13 @@
       foot.innerHTML = `
         <tr>
           <th colspan="3" class="totals-label">Booked totals</th>
-          <td data-label="Total"><strong>${formatAud(totalSum)}</strong></td>
-          <td data-label="Paid"><strong>${formatAud(paidSum)}</strong></td>
-          <td data-label="Balance"><strong>${formatAud(balanceSum)}</strong></td>
+          <td data-label="Total"><strong>${formatAud2(totalSum)}</strong></td>
+          <td data-label="Paid"><strong>${formatAud2(paidSum)}</strong></td>
+          <td data-label="Balance"><strong>${formatAud2(balanceSum)}</strong></td>
           <td></td>
         </tr>
       `;
-      document.getElementById("bookingsPill").textContent = `${formatAud(paidSum)} paid / ${formatAud(balanceSum)} owing`;
+      document.getElementById("bookingsPill").textContent = `${formatAud2(paidSum)} paid / ${formatAud2(balanceSum)} owing`;
     }
 
     function renderFuel() {
@@ -3148,6 +3148,15 @@
         style: "currency",
         currency: "AUD",
         maximumFractionDigits: 0
+      });
+    }
+
+    function formatAud2(value) {
+      return value.toLocaleString("en-AU", {
+        style: "currency",
+        currency: "AUD",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
       });
     }
 
