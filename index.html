@@ -1402,7 +1402,7 @@
     <div class="header-inner">
       <div class="brand">
         <h1>South West WA Road Trip Planner</h1>
-        <div class="subtitle">Perth to Esperance, Bremer Bay and Denmark &mdash; 8 to 22 December 2026.</div>
+        <div class="subtitle">Perth to Esperance, Bremer Bay and Denmark via Wave Rock &mdash; 7 to 22 December 2026.</div>
       </div>
       <div class="toolbar" aria-label="Planner controls">
         <button id="printButton" type="button" title="Print or save as PDF">Print / PDF</button>
@@ -2012,6 +2012,7 @@
     };
 
     const BOOKINGS = {
+      "Hyden": { park: "Wave Rock Caravan Park", site: "Powered caravan site", total: 55, paid: 55, status: "Paid in full" },
       "Esperance": { park: "RAC Esperance Holiday Park", site: "Powered site", total: 377, paid: 62.83, status: "Deposit paid" },
       "Bremer Bay": { park: "Bremer Bay Caravan Park", site: "Powered site", total: 195, paid: 65, status: "Deposit paid" },
       "Denmark": { park: "BIG4 Denmark Ocean Beach Holiday Park", site: "Powered site", total: 385, paid: 385, status: "Paid in full" }
@@ -2021,16 +2022,17 @@
       trip: {
         label: "Confirmed trip",
         title: "South West WA Road Trip",
-        description: "Perth to Esperance, Bremer Bay and Denmark, then home.",
-        baseLoopKm: 1730,
+        description: "Perth to Esperance, Bremer Bay and Denmark via Wave Rock, then home.",
+        baseLoopKm: 1750,
         notes: [
-          "Depart Perth Tue 8 Dec, home Tue 22 Dec - back before Christmas.",
-          "Drive straight to Esperance on the 8th (Wave Rock lunch stop en route), keeping Tilly's birthday on the 7th at home.",
+          "Depart Perth Mon 7 Dec, home Tue 22 Dec - back before Christmas.",
+          "Overnight at Wave Rock (Hyden) on the 7th to shorten the tow to Esperance on the 8th.",
           "Cape Le Grand and Lucky Bay are day-tripped from the Esperance base rather than towing in.",
-          "All three stops booked; Denmark paid in full."
+          "All four stops booked; Hyden and Denmark paid in full."
         ],
         stops: [
-          stop("Esperance", "2026-12-08", 6, "Anchor stay - RAC powered site booked. Base for Cape Le Grand / Lucky Bay day trips. Arrive via a Wave Rock lunch stop."),
+          stop("Hyden", "2026-12-07", 1, "Wave Rock overnight to split the drive east - booked, paid in full."),
+          stop("Esperance", "2026-12-08", 6, "Anchor stay - RAC powered site booked. Base for Cape Le Grand / Lucky Bay day trips."),
           stop("Bremer Bay", "2026-12-14", 3, "Beaches and Fitzgerald River NP access; Bremer Bay Caravan Park booked."),
           stop("Denmark", "2026-12-17", 5, "Greens Pool, Elephant Rocks, forest and food; BIG4 Ocean Beach booked (paid in full).")
         ]
@@ -2795,7 +2797,7 @@
         row.className = "route-row";
         row.innerHTML = `
           <span class="route-index" style="background:${LOCATIONS[item.name].color}">${index + 1}</span>
-          <span class="route-name">${item.name}<small class="route-leg">${drive}${item.nights} nights</small></span>
+          <span class="route-name">${item.name}<small class="route-leg">${drive}${item.nights} night${item.nights === 1 ? "" : "s"}</small></span>
         `;
         list.append(row);
       });
