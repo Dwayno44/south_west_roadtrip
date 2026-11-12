@@ -661,6 +661,61 @@
       text-align: right;
     }
 
+    .activities-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .activity-stop {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .activity-head {
+      align-items: baseline;
+      background: #f1f5f2;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem 0.55rem;
+      padding: 0.65rem 0.85rem;
+    }
+
+    .activity-head h3 {
+      font-size: 1.05rem;
+    }
+
+    .activity-meta {
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .activity-list {
+      display: grid;
+      gap: 0.6rem;
+      list-style: none;
+      margin: 0;
+      padding: 0.8rem 0.85rem;
+    }
+
+    .activity-list li {
+      display: grid;
+      gap: 0.12rem;
+    }
+
+    .activity-list strong {
+      font-size: 0.95rem;
+    }
+
+    .activity-list span {
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.4;
+    }
+
     .write-lines {
       display: grid;
       gap: 0.5rem;
@@ -990,7 +1045,8 @@
       .overview,
       .grid-two,
       .months,
-      .notes-grid {
+      .notes-grid,
+      .activities-grid {
         grid-template-columns: 1fr;
       }
 
@@ -1562,6 +1618,16 @@
         </div>
       </section>
 
+      <section class="panel" aria-labelledby="activitiesTitle">
+        <div class="panel-header">
+          <h2 id="activitiesTitle">Things to Do</h2>
+          <span class="pill">Family ideas per stop</span>
+        </div>
+        <div class="panel-body">
+          <div class="activities-grid" id="activitiesGrid"></div>
+        </div>
+      </section>
+
       <details class="panel cost-details">
         <summary>Fuel &amp; cost estimator <span class="summary-hint">optional &middot; tap to open</span></summary>
         <div class="panel-body calculator">
@@ -2018,6 +2084,37 @@
       "Denmark": { park: "BIG4 Denmark Ocean Beach Holiday Park", site: "Powered site", total: 385, paid: 385, status: "Paid in full" }
     };
 
+    const ACTIVITIES = {
+      "Hyden": [
+        { name: "Wave Rock", note: "The 15m granite 'wave' right by the park - the must-do photo, with an easy walk around it." },
+        { name: "Hippo's Yawn & The Humps", note: "Short, flat family walks a few minutes from Wave Rock." },
+        { name: "Mulka's Cave", note: "Aboriginal hand stencils in a granite cave ~20 min north - a good quick stop arriving or leaving." },
+        { name: "Wave Rock Wildlife Park", note: "Kangaroos, koalas and birds - an easy kid-pleaser by the rock." }
+      ],
+      "Esperance": [
+        { name: "Lucky Bay, Cape Le Grand NP", note: "Kangaroos lazing on blinding-white sand beside calm turquoise water. BBQs and toilets for a picnic. Needs a WA Parks pass and there are no shops in the park - stock up in town first. ~45 min drive." },
+        { name: "Great Ocean Drive (40 km loop)", note: "Half-day coastal loop from town: Twilight Beach, West Beach and 11 Mile Lagoon are all great for little ones, plus Observatory Point and the wind farm. Go early in the school holidays." },
+        { name: "Thistle Cove to Lucky Bay walk", note: "Short, easy, scenic coastal walk in Cape Le Grand - doable with the kids." },
+        { name: "Tanker Jetty & Esplanade", note: "Town foreshore - jetty stroll, playground and safe swimming for an easy day." },
+        { name: "Lucky Bay Brewing", note: "Wood-fired pizza with a big outdoor play area for the kids, on the edge of town." },
+        { name: "Esperance Museum", note: "Indoor back-up for a grey day - local history and Skylab debris." }
+      ],
+      "Bremer Bay": [
+        { name: "Blossoms & Back Beach", note: "Sheltered white-sand beaches with calm water - the easy family swim spots." },
+        { name: "Little Boat Harbour", note: "Protected cove, good for a paddle, a snorkel and a picnic." },
+        { name: "Fitzgerald River NP (Point Ann)", note: "Rugged coast and short walks in a UNESCO biosphere reserve, ~45 min away." },
+        { name: "Bremer Canyon orca tour (optional)", note: "Orca season is only just starting (~mid-Dec). Naturaliste Charters may be running, but it's an ~8-hour offshore day - a big ask with young kids, and sightings are most reliable Jan-Mar. Check their calendar." }
+      ],
+      "Denmark": [
+        { name: "Greens Pool, William Bay NP", note: "The star of the trip - a boulder-sheltered lagoon with calm, clear water. Ideal for young kids, with snorkelling too." },
+        { name: "Elephant Rocks", note: "Giant granite boulders and a tiny sheltered cove right next to Greens Pool - do them together as a half-day." },
+        { name: "Valley of the Giants Tree Top Walk", note: "A 600 m walkway 40 m up in the giant tingle forest (~50 min west near Walpole). A big hit with kids - confirm current opening hours before you go." },
+        { name: "Ocean Beach & Wilson Inlet", note: "Surf beach plus a calm river inlet for paddling, kayaking and SUP." },
+        { name: "Denmark Animal Farm", note: "Alpacas and friendly farm animals - an easy win with the kids." },
+        { name: "Sweet stops", note: "Denmark Chocolate Company and Bartholomews Meadery (honey ice cream) along the Scotsdale Road loop." }
+      ]
+    };
+
     const OPTIONS = {
       trip: {
         label: "Confirmed trip",
@@ -2138,6 +2235,7 @@
       renderTable(option);
       renderNotes(option);
       renderBookings(option);
+      renderActivities(option);
       renderFuel();
     }
 
@@ -2987,6 +3085,32 @@
         const item = document.createElement("li");
         item.textContent = text;
         notes.append(item);
+      });
+    }
+
+    function renderActivities(option) {
+      const grid = document.getElementById("activitiesGrid");
+      grid.innerHTML = "";
+      option.stops.forEach((item) => {
+        const list = ACTIVITIES[item.name] || [];
+        if (!list.length) return;
+        const arrive = formatDateTwoLine(item.arrive);
+        const depart = formatDateTwoLine(item.depart);
+        const nights = `${item.nights} night${item.nights === 1 ? "" : "s"}`;
+        const block = document.createElement("div");
+        block.className = "activity-stop";
+        const items = list
+          .map((a) => `<li><strong>${a.name}</strong><span>${a.note}</span></li>`)
+          .join("");
+        block.innerHTML = `
+          <div class="activity-head">
+            <span class="stop-dot" style="background:${LOCATIONS[item.name].color}"></span>
+            <h3>${item.name}</h3>
+            <span class="activity-meta">${arrive.top} to ${depart.top} &middot; ${nights}</span>
+          </div>
+          <ul class="activity-list">${items}</ul>
+        `;
+        grid.append(block);
       });
     }
 
